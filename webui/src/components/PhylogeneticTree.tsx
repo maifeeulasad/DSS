@@ -46,55 +46,6 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
   const [showBranchLengths, setShowBranchLengths] = useState(false);
 
   // Parse and prepare tree data with manual layout
-  const layoutTreeData = (treeData: G6TreeData): any => {
-    const nodes: any[] = [];
-    const edges: any[] = [];
-
-    // Calculate tree dimensions
-    function getTreeDepth(node: G6TreeData): number {
-      if (!node.children || node.children.length === 0) return 1;
-      const depths = node.children.map((child) => getTreeDepth(child));
-      return 1 + Math.max(...depths);
-    }
-
-    const depth = getTreeDepth(treeData);
-    const siblingDistance = 80;
-    const levelHeight = 100;
-
-    // Recursive layout function
-    function layoutNode(node: G6TreeData, x: number, y: number, siblingSpacing: number): void {
-      const nodeData: any = {
-        id: node.id,
-        label: node.label || node.id,
-        x,
-        y,
-      };
-      nodes.push(nodeData);
-
-      if (node.children && node.children.length > 0) {
-        const childrenSpacing = siblingSpacing / node.children.length;
-        const totalWidth = siblingSpacing;
-        const startX = x - totalWidth / 2;
-
-        node.children.forEach((child, idx) => {
-          const childX = startX + (idx + 0.5) * childrenSpacing;
-          const childY = y + levelHeight;
-
-          layoutNode(child, childX, childY, childrenSpacing);
-
-          edges.push({
-            source: node.id,
-            target: child.id,
-          });
-        });
-      }
-    }
-
-    layoutNode(treeData, 0, 0, siblingDistance * (2 ** (depth - 1)));
-    return { nodes, edges };
-  };
-
-  // Get tree data
   const getTreeData = (): any => {
     if (!data) {
       return layoutTreeData(generateSampleTreeData());
@@ -112,6 +63,94 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     return layoutTreeData(data);
   };
 
+  // Manual tree layout function
+  const layoutTreeData = (treeData: G6TreeData): any => {
+    const nodes: any[] = [];
+    const edges: any[] = [];
+    
+    // Calculate tree dimensions
+    function getTreeDepth(node: G6TreeData): number {
+      if (!node.children || node.children.length === 0) return 1;
+      return 1 + Math.max(...node.children.map(child => getTreeDepth(child)));
+    }
+
+    function getLeafCount(node: G6TreeData): number {
+      if (!node.children || node.children.length === 0) return 1;
+      return node.children.reduce((sum, child) => sum + getLeafCount(child), 0);
+    }
+
+    const depth = getTreeDepth(treeData);
+    const leafCount = getLeafCount(treeData);
+    
+    const levelSpacing = direction === 'LR' || direction === 'RL' ? (width - 100) / (depth - 1) : (height - 100) / (depth - 1);
+    const nodeSpacing = direction === 'LR' || direction === 'RL' ? (height - 100) / leafCount : (width - 100) / leafCount;
+
+    let leafIndex = 0;
+
+    function traverse(node: G6TreeData, level: number, parentId?: string): number {
+      const nodeId = node.id;
+      let currentLeafIndex = leafIndex;
+      
+      if (!node.children || node.children.length === 0) {
+        // Leaf node
+        leafIndex++;
+      } else {
+        // Internal node - position at average of children
+        const childPositions: number[] = [];
+        node.children.forEach(child => {
+          const childPos = traverse(child, level + 1, nodeId);
+          childPositions.push(childPos);
+        });
+        currentLeafIndex = childPositions.reduce((sum, pos) => sum + pos, 0) / childPositions.length;
+      }
+
+      // Calculate position based on direction
+      let x, y;
+      if (direction === 'LR') {
+        x = level * levelSpacing + 50;
+        y = currentLeafIndex * nodeSpacing + 50;
+      } else if (direction === 'RL') {
+        x = width - (level * levelSpacing + 50);
+        y = currentLeafIndex * nodeSpacing + 50;
+      } else if (direction === 'TB') {
+        x = currentLeafIndex * nodeSpacing + 50;
+        y = level * levelSpacing + 50;
+      } else { // BT
+        x = currentLeafIndex * nodeSpacing + 50;
+        y = height - (level * levelSpacing + 50);
+      }
+
+      nodes.push({
+        id: nodeId,
+        label: node.label,
+        x,
+        y,
+        type: 'circle',
+        size: node.children && node.children.length > 0 ? 8 : 12,
+        style: {
+          fill: node.children && node.children.length > 0 ? '#ff7f0e' : '#1890ff',
+        },
+      });
+
+      if (parentId) {
+        edges.push({
+          source: parentId,
+          target: nodeId,
+          type: 'polyline',
+          style: {
+            radius: 5,
+          },
+        });
+      }
+
+      return currentLeafIndex;
+    }
+
+    traverse(treeData, 0);
+    
+    return { nodes, edges };
+  };
+
   const initializeGraph = () => {
     if (!containerRef.current) return;
 
@@ -121,21 +160,9 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     }
 
     // Map direction to G6 format
-    const getLayoutDirection = (dir: string): string => {
-      switch (dir) {
-        case 'LR':
-          return 'LR';
-        case 'RL':
-          return 'RL';
-        case 'TB':
-          return 'TB';
-        default:
-          return 'BT';
-      }
-    };
-
-    // Layout direction for future use
-    getLayoutDirection(direction);
+    const layoutDirection = direction === 'LR' ? 'LR' : 
+                           direction === 'RL' ? 'RL' :
+                           direction === 'TB' ? 'TB' : 'BT';
 
     const graph = new Graph({
       container: containerRef.current,
@@ -214,15 +241,15 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     graph.on('node:click', (evt) => {
       const { item } = evt;
       const model = item!.getModel();
-
+      
       // Clear previous selection
       graph.getNodes().forEach((node) => {
         graph.clearItemStates(node, 'selected');
       });
-
+      
       // Set current selection
       graph.setItemState(item!, 'selected', true);
-
+      
       if (onNodeClick) {
         onNodeClick(model);
       }
@@ -302,7 +329,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
       const canvas = graphRef.current.get('canvas');
       const renderer = canvas.get('renderer');
       const canvasElement = renderer.get('canvas');
-
+      
       if (canvasElement) {
         const dataURL = canvasElement.toDataURL('image/png');
         const link = document.createElement('a');
@@ -376,7 +403,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
           </Space>
         </div>
       )}
-
+      
       <div
         ref={containerRef}
         style={{
@@ -387,7 +414,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
           overflow: 'hidden',
         }}
       />
-
+      
       <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
         Use mouse wheel to zoom, drag to pan, click nodes to select
       </div>
