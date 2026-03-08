@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build_frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,27 +33,122 @@ jobs:
           cache: pnpm
           cache-dependency-path: webui/pnpm-lock.yaml
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
       - name: Install dependencies
         working-directory: webui
         run: pnpm install --frozen-lockfile
 
-      - name: Build static export
+      - name: Build frontend
         working-directory: webui
         env:
           GITHUB_PAGES: 'true'
           PUBLIC_URL: /${{ github.event.repository.name }}
         run: pnpm build
 
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: webui/build
+          retention-days: 1
+
+  build_docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build documentation
+        run: make html
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-build
+          path: _build/html
+          retention-days: 1
+
+  merge_and_deploy:
+    needs: [build_frontend, build_docs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: deploy/app
+
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-build
+          path: deploy/docs
+
+      - name: Create index file
+        run: |
+          cat > deploy/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>DNA Sequence Similarities</title>
+              <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+                  .container { text-align: center; background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); padding: 60px 40px; max-width: 600px; }
+                  h1 { color: #333; margin-bottom: 20px; font-size: 2.5em; }
+                  p { color: #666; margin-bottom: 40px; font-size: 1.1em; line-height: 1.6; }
+                  .links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+                  a { display: inline-block; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; font-size: 1em; }
+                  .link-app { background: #667eea; color: white; }
+                  .link-app:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+                  .link-docs { background: #764ba2; color: white; }
+                  .link-docs:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4); }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🧬 DNA Sequence Similarities</h1>
+                  <p>Explore DNA sequence analysis tools and comprehensive documentation</p>
+                  <div class="links">
+                      <a href="./app/" class="link-app">🚀 Web Application</a>
+                      <a href="./docs/" class="link-docs">📚 Documentation</a>
+                  </div>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: List deployment structure
+        run: |
+          echo "=== Deployment structure ==="
+          ls -la deploy/
+          echo ""
+          echo "=== App contents ==="
+          ls -la deploy/app/ | head -20
+          echo ""
+          echo "=== Docs contents ==="
+          ls -la deploy/docs/ | head -20
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: webui/build
+          path: deploy
 
   deploy:
-    needs: build
+    needs: merge_and_deploy
     runs-on: ubuntu-latest
     environment:
       name: github-pages
