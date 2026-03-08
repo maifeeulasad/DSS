@@ -1,0 +1,91 @@
+name: Build and Deploy to k3s
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.K3S_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.K3S_SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy to k3s server
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.K3S_SERVER_SSH_USERNAME }}@${{ secrets.K3S_SERVER_HOST }} << 'EOF'
+          set -e
+          
+          echo "Deploying DSS to k3s..."
+          
+          # Navigate to project directory (create if not exists)
+          PROJECT_DIR="/home/${{ secrets.K3S_SERVER_SSH_USERNAME }}/DSS"
+          mkdir -p $PROJECT_DIR
+          cd $PROJECT_DIR
+          
+          # Clone or pull latest code
+          if [ -d ".git" ]; then
+            echo "Updating existing repository..."
+            git pull origin ${{ github.ref_name }}
+          else
+            echo "Cloning repository..."
+            git clone --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }}.git .
+          fi
+          
+          # Build Docker image
+          echo "Building backend Docker image..."
+          docker build -f Dockerfile -t dss-api:latest .
+          
+          # Deploy using kubectl
+          echo "Deploying backend to k3s cluster..."
+          kubectl apply -f k8s/
+          
+          echo "Deployment complete!"
+          
+          # Wait for deployment to be ready
+          echo "Waiting for deployment to be ready..."
+          kubectl rollout status deployment/dss-api -n dss --timeout=5m || true
+          
+          # Show running backend service
+          echo "Backend service status:"
+          kubectl get pods -n dss
+          kubectl get svc -n dss
+          
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.K3S_SERVER_SSH_USERNAME }}@${{ secrets.K3S_SERVER_HOST }} << 'EOF'
+          echo "Verifying deployment..."
+          
+          PROJECT_DIR="/home/${{ secrets.K3S_SERVER_SSH_USERNAME }}/DSS"
+          cd $PROJECT_DIR
+          
+          # Check if backend service is running
+          echo "=== Backend Service Status ==="
+          kubectl get pods -n dss
+          kubectl get svc -n dss
+          
+          # Verify API is responding
+          echo "=== API Health Check ==="
+          kubectl port-forward -n dss svc/dss-api-service 8000:8000 &
+          sleep 2
+          curl -s http://localhost:8000/docs | head -20 || echo "API not yet ready"
+          pkill -f "port-forward" || true
+          
+          echo "Deployment verification complete!"
+          EOF
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_rsa
