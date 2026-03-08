@@ -20,39 +20,46 @@ interface User {
 }
 
 class UserService {
-  static async getList(params: Partial<User>): Promise<{ data: User[]; total: number }> {
-    console.log('Fetching user list with params:', params);
+  // eslint-disable-next-line no-console
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async getList(_params: Partial<User>): Promise<{ data: User[]; total: number }> {
     // please call this api: https://jsonplaceholder.typicode.com/posts/
     // and return the data in the format of { data: User[], total: number }
 
     const response = await fetch('https://jsonplaceholder.typicode.com/posts/');
     const data = await response.json();
     const total = data.length;
-    console.log('Fetched user list:', data);
-    console.log('Total users:', total);
     return { data, total };
 
     // return {
     //   data: [
-    //     { id: 1, name: 'John Doe', age: 30, createdAt: '2023-01-01', status: 'active', isAdmin: true },
-    //     { id: 2, name: 'Jane Smith', age: 25, createdAt: '2023-02-01', status: 'inactive', isAdmin: false },
+    //     {
+    //       id: 1, name: 'John Doe', age: 30, createdAt: '2023-01-01',
+    //       status: 'active', isAdmin: true,
+    //     },
+    //     {
+    //       id: 2, name: 'Jane Smith', age: 25, createdAt: '2023-02-01',
+    //       status: 'inactive', isAdmin: false,
+    //     },
     //   ],
     //   total: 2,
     // };
   }
 
+  // eslint-disable-next-line no-console
   static async create(data: Partial<User>) {
-    console.log('Creating user:', data);
     return data as User;
   }
 
+  // eslint-disable-next-line no-console
   static async update(id: number, data: Partial<User>) {
-    console.log(`Updating user with id ${id}:`, data);
     return { id, ...data } as User;
   }
 
-  static async delete(id: number) {
-    console.log(`Deleting user with id ${id}`);
+  // eslint-disable-next-line no-console
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async delete(_id: number) {
+    // Delete operation
   }
 }
 
