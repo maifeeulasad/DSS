@@ -11,26 +11,15 @@ import logo from './logo.svg';
 const defaultMenus: MenuDataItem[] = [
   {
     path: '/',
-    name: 'Pages',
-    children: [
-      {
-        path: '/page2',
-        name: 'Page 2',
-      },
-      {
-        path: '/page1',
-        name: 'Page 1 - Fallback to landing',
-      },
-      {
-        path: '/page3',
-        name: 'Page 3',
-      },
-    ],
+    name: 'Landing Page',
   },
   {
-    path: '/landing',
-    name: 'Landing Page',
-    // hideInMenu: true, // hidden from menu
+    path: '/app/',
+    name: 'Application',
+  },
+  {
+    path: '/docs/',
+    name: 'Documentation',
   },
 ];
 
