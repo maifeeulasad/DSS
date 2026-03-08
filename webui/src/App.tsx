@@ -16,7 +16,7 @@ import { DSAAnalysis } from './component/DSAAnalysis';
 
 const App = () => (
   <ConfigProvider locale={enUS}>
-    <BrowserRouter basename="/dss">
+    <BrowserRouter basename="/DSS">
       <CustomLayout>
         <Routes>
           {/* <Route path="/landing" element={<LazyLanding />} /> */}
