@@ -19,10 +19,9 @@ const App = () => (
     <BrowserRouter basename="/DSS">
       <CustomLayout>
         <Routes>
-          {/* <Route path="/landing" element={<LazyLanding />} /> */}
+          <Route path="/" element={<Navigate to="/analysis" replace />} />
           <Route path="/analysis" element={<DSAAnalysis />} />
-          {/* <Route path="/page2" element={<LazyPage2 />} /> */}
-          {/* <Route path="/page3" element={<LazyPage3 />} /> */}
+          <Route path="/docs" element={<Navigate to="/docs/" replace />} />
           <Route
             path="*"
             element={<Navigate to="/analysis" replace />}
