@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'DSS'
-copyright = '2025, Dr. Machbah Uddin'
+copyright = '2026, Dr. Machbah Uddin'
 author = 'Dr. Machbah Uddin'
 release = '1.0.0'
 
