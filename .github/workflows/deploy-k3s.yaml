@@ -46,9 +46,13 @@ jobs:
           echo "Building backend Docker image..."
           docker build -f Dockerfile -t dss-api:latest .
           
+          # Create namespace first if it doesn't exist
+          kubectl apply -f k8s/namespace.yaml
+          
           # Deploy using kubectl
           echo "Deploying backend to k3s cluster..."
-          kubectl apply -f k8s/
+          kubectl apply -f k8s/deployment-api.yaml
+          kubectl apply -f k8s/ingress.yaml
           
           echo "Deployment complete!"
           
