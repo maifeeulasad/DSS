@@ -32,39 +32,39 @@ export default defineConfig({
   base: '/DSS/',
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{html,js,css,png,jpg,svg,ico,json,woff2,ttf,mp4}'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
-        runtimeCaching: [
-          {
-            urlPattern: ({ request }) => request.destination === 'document',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'html-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds },
-            },
-          },
-          {
-            urlPattern: ({ request }) => ['script', 'style', 'worker'].includes(request.destination),
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'assets-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds },
-            },
-          },
-          {
-            urlPattern: ({ request }) => ['image', 'font'].includes(request.destination),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'media-cache',
-              expiration: { maxEntries: 100, maxAgeSeconds },
-            },
-          },
-        ],
-      },
-    }),
+    // VitePWA({
+    //   registerType: 'autoUpdate',
+    //   workbox: {
+    //     globPatterns: ['**/*.{html,js,css,png,jpg,svg,ico,json,woff2,ttf,mp4}'],
+    //     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
+    //     runtimeCaching: [
+    //       {
+    //         urlPattern: ({ request }) => request.destination === 'document',
+    //         handler: 'NetworkFirst',
+    //         options: {
+    //           cacheName: 'html-cache',
+    //           expiration: { maxEntries: 10, maxAgeSeconds },
+    //         },
+    //       },
+    //       {
+    //         urlPattern: ({ request }) => ['script', 'style', 'worker'].includes(request.destination),
+    //         handler: 'StaleWhileRevalidate',
+    //         options: {
+    //           cacheName: 'assets-cache',
+    //           expiration: { maxEntries: 50, maxAgeSeconds },
+    //         },
+    //       },
+    //       {
+    //         urlPattern: ({ request }) => ['image', 'font'].includes(request.destination),
+    //         handler: 'CacheFirst',
+    //         options: {
+    //           cacheName: 'media-cache',
+    //           expiration: { maxEntries: 100, maxAgeSeconds },
+    //         },
+    //       },
+    //     ],
+    //   },
+    // }),
     svgrPlugin({
       svgrOptions: {
         icon: true,
