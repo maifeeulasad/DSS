@@ -36,13 +36,13 @@ export interface SequenceData {
 }
 
 class DSSApiClient {
-  private baseUrl: string;
+  private static baseUrl: string;
 
   constructor(baseUrl = 'http://localhost:8000') {
-    this.baseUrl = baseUrl;
+    DSSApiClient.baseUrl = baseUrl;
   }
 
-  async getMethods(): Promise<MethodInfo[]> {
+  static async getMethods(): Promise<MethodInfo[]> {
     const response = await fetch(`${this.baseUrl}/methods`);
     if (!response.ok) {
       throw new Error(`Failed to fetch methods: ${response.statusText}`);
@@ -50,7 +50,7 @@ class DSSApiClient {
     return response.json();
   }
 
-  async getMethodInfo(methodName: string): Promise<MethodInfo> {
+  static async getMethodInfo(methodName: string): Promise<MethodInfo> {
     const response = await fetch(`${this.baseUrl}/methods/${methodName}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch method info: ${response.statusText}`);
@@ -58,7 +58,7 @@ class DSSApiClient {
     return response.json();
   }
 
-  async uploadAndParse(files: File[]): Promise<SequenceData[]> {
+  static async uploadAndParse(files: File[]): Promise<SequenceData[]> {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('files', file);
@@ -75,7 +75,7 @@ class DSSApiClient {
     return response.json();
   }
 
-  async analyzeSequences(request: AnalysisRequest): Promise<AnalysisResponse> {
+  static async analyzeSequences(request: AnalysisRequest): Promise<AnalysisResponse> {
     const response = await fetch(`${this.baseUrl}/analyze`, {
       method: 'POST',
       headers: {
@@ -91,7 +91,7 @@ class DSSApiClient {
     return response.json();
   }
 
-  async healthCheck(): Promise<{ status: string; message: string }> {
+  static async healthCheck(): Promise<{ status: string; message: string }> {
     const response = await fetch(`${this.baseUrl}/health`);
     if (!response.ok) {
       throw new Error(`Health check failed: ${response.statusText}`);
@@ -100,7 +100,7 @@ class DSSApiClient {
   }
 
   // Utility method to convert File to base64
-  async fileToBase64(file: File): Promise<string> {
+  static async fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -115,11 +115,12 @@ class DSSApiClient {
   }
 
   // Helper method to prepare files for analysis
-  async prepareFilesForAnalysis(files: File[]): Promise<SequenceFile[]> {
+  static async prepareFilesForAnalysis(files: File[]): Promise<SequenceFile[]> {
     const sequenceFiles: SequenceFile[] = [];
-
+    // eslint-disable-next-line no-restricted-syntax
     for (const file of files) {
-      const base64Content = await this.fileToBase64(file);
+      // eslint-disable-next-line no-await-in-loop
+      const base64Content = await DSSApiClient.fileToBase64(file);
       sequenceFiles.push({
         filename: file.name,
         content: base64Content,
@@ -130,4 +131,4 @@ class DSSApiClient {
   }
 }
 
-export const dssApi = new DSSApiClient();
+export { DSSApiClient };
