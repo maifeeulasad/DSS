@@ -54,6 +54,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: webui/pnpm-lock.yaml
 
       - name: Install frontend dependencies
         working-directory: webui

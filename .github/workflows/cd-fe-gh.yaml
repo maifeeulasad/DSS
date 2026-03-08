@@ -31,6 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: webui/pnpm-lock.yaml
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
