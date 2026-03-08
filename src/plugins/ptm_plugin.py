@@ -2,18 +2,16 @@
 Part-wise Template Matching (PTM) plugin implementation.
 """
 
-import numpy as np
-from typing import List, Dict, Any
-from sklearn.metrics.pairwise import pairwise_distances
-from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
-from Bio import Phylo
 from io import StringIO
-from src.core.interfaces import (
-    ISequenceProcessor,
-    SequenceData,
-    AnalysisResult,
-    MethodConfig,
-)
+from typing import Any, Dict, List
+
+import numpy as np
+from Bio import Phylo
+from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
+from sklearn.metrics.pairwise import pairwise_distances
+
+from src.core.interfaces import (AnalysisResult, ISequenceProcessor,
+                                 MethodConfig, SequenceData)
 
 
 class PTMProcessor(ISequenceProcessor):

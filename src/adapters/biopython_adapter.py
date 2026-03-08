@@ -4,7 +4,9 @@ Adapter for BioPython sequence loading functionality.
 
 import os
 from typing import List
+
 from Bio import SeqIO
+
 from src.core.interfaces import ISequenceLoader, SequenceData
 
 

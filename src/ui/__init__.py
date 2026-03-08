@@ -2,15 +2,10 @@
 UI package initialization
 """
 
-from .main_window import MainWindow, create_application, main
 from .analysis_window import AnalysisWindow
-from .base_components import (
-    ProgressCallback,
-    ProgressDialog,
-    LoadingDialog,
-    WorkerThread,
-    ThreadProgressCallback,
-)
+from .base_components import (LoadingDialog, ProgressCallback, ProgressDialog,
+                              ThreadProgressCallback, WorkerThread)
+from .main_window import MainWindow, create_application, main
 
 __all__ = [
     "MainWindow",

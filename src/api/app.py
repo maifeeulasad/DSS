@@ -2,25 +2,22 @@
 FastAPI application for DSS REST API
 """
 
+import base64
 import time
 import traceback
-from typing import List, Dict, Any
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from typing import Any, Dict, List
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import base64
 
-from src.core.analysis_service import AnalysisService
-from src.core.plugin_loader import plugin_loader
-from src.core.interfaces import MethodConfig
-from src.api.models import (
-    AnalysisRequest,
-    AnalysisResponse,
-    MethodInfoResponse,
-    StatusResponse,
-    SequenceDataResponse,
-)
+from src.api.models import (AnalysisRequest, AnalysisResponse,
+                            MethodInfoResponse, SequenceDataResponse,
+                            StatusResponse)
 from src.api.sequence_loader import InMemorySequenceLoader
+from src.core.analysis_service import AnalysisService
+from src.core.interfaces import MethodConfig
+from src.core.plugin_loader import plugin_loader
 
 
 def create_app() -> FastAPI:

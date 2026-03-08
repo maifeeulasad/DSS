@@ -2,19 +2,17 @@
 Dynamic Part-wise Template Matching (DPTM) plugin implementation.
 """
 
+from io import StringIO
+from typing import Any, Dict, List
+
 import numpy as np
-from typing import List, Dict, Any
-from sklearn.metrics.pairwise import pairwise_distances
+from Bio import Phylo
 from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
 from Bio.Seq import Seq
-from Bio import Phylo
-from io import StringIO
-from src.core.interfaces import (
-    ISequenceProcessor,
-    SequenceData,
-    AnalysisResult,
-    MethodConfig,
-)
+from sklearn.metrics.pairwise import pairwise_distances
+
+from src.core.interfaces import (AnalysisResult, ISequenceProcessor,
+                                 MethodConfig, SequenceData)
 
 
 class DPTMProcessor(ISequenceProcessor):

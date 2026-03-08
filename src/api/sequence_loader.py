@@ -2,13 +2,15 @@
 In-memory sequence loader for API that processes ZIP files without extraction
 """
 
-import zipfile
-import io
 import base64
+import io
+import zipfile
 from typing import List, Tuple
+
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+
 from src.core.interfaces import ISequenceLoader, SequenceData
 
 

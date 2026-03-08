@@ -2,9 +2,10 @@
 Pydantic models for API request/response schemas
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
 import base64
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 
 class SequenceFileModel(BaseModel):

@@ -3,12 +3,9 @@ Plugin registry implementation for managing analysis plugins.
 """
 
 from typing import Dict, List, Optional
-from src.core.interfaces import (
-    IPluginRegistry,
-    ISequenceProcessor,
-    ISequenceLoader,
-    ITreeVisualizer,
-)
+
+from src.core.interfaces import (IPluginRegistry, ISequenceLoader,
+                                 ISequenceProcessor, ITreeVisualizer)
 
 
 class PluginRegistry(IPluginRegistry):

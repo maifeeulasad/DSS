@@ -4,9 +4,11 @@ Adapter for matplotlib/BioPython tree visualization.
 
 import os
 from typing import List
+
 import matplotlib.pyplot as plt
 from Bio import Phylo
-from src.core.interfaces import ITreeVisualizer, AnalysisResult
+
+from src.core.interfaces import AnalysisResult, ITreeVisualizer
 
 
 class MatplotlibTreeVisualizer(ITreeVisualizer):

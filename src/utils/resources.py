@@ -5,8 +5,9 @@ Utility functions for resource management and file operations.
 import os
 import sys
 from typing import Tuple
-from PyQt6.QtGui import QPixmap
+
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
 
 
 def resource_path(relative_path: str) -> str:

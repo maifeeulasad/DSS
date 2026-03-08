@@ -4,8 +4,10 @@ Plugin loader for automatic plugin discovery and registration.
 
 import importlib
 import pkgutil
-from typing import Type, List
-from src.core.interfaces import ISequenceProcessor, ISequenceLoader, ITreeVisualizer
+from typing import List, Type
+
+from src.core.interfaces import (ISequenceLoader, ISequenceProcessor,
+                                 ITreeVisualizer)
 from src.core.plugin_registry import plugin_registry
 
 
@@ -34,8 +36,8 @@ class PluginLoader:
         # Load new enhanced plugins
         try:
             from src.plugins.cgr_plugin import CGRProcessor
-            from src.plugins.tm_plugin import TMProcessor
             from src.plugins.ptm_plugin import PTMProcessor
+            from src.plugins.tm_plugin import TMProcessor
 
             plugin_registry.register_processor(CGRProcessor())
             plugin_registry.register_processor(TMProcessor())
@@ -56,7 +58,8 @@ class PluginLoader:
             print(f"Failed to load BioPython adapter: {e}")
 
         try:
-            from src.adapters.matplotlib_adapter import MatplotlibTreeVisualizer
+            from src.adapters.matplotlib_adapter import \
+                MatplotlibTreeVisualizer
 
             plugin_registry.register_visualizer(MatplotlibTreeVisualizer())
             self.loaded_plugins.add("MatplotlibTreeVisualizer")

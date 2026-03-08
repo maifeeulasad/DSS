@@ -2,36 +2,24 @@
 Package initialization and imports for the new architecture.
 """
 
-import sys
 import os
+import sys
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Core components
-from src.core import (
-    AnalysisService,
-    plugin_registry,
-    ISequenceProcessor,
-    ISequenceLoader,
-    ITreeVisualizer,
-    SequenceData,
-    AnalysisResult,
-    MethodConfig,
-)
-
-# UI components
-from src.ui import MainWindow, AnalysisWindow, create_application, main
-
-# Plugins
-from src.plugins import DPTMProcessor, CGRProcessor, TMProcessor, PTMProcessor
-
 # Adapters
 from src.adapters import BioPythonSequenceLoader, MatplotlibTreeVisualizer
-
 # API components
 from src.api import create_app
-
+# Core components
+from src.core import (AnalysisResult, AnalysisService, ISequenceLoader,
+                      ISequenceProcessor, ITreeVisualizer, MethodConfig,
+                      SequenceData, plugin_registry)
+# Plugins
+from src.plugins import CGRProcessor, DPTMProcessor, PTMProcessor, TMProcessor
+# UI components
+from src.ui import AnalysisWindow, MainWindow, create_application, main
 # Utilities
 from src.utils import app_config, resource_path
 

@@ -2,30 +2,22 @@
 Main window implementation with plugin-based architecture.
 """
 
-import sys
 import os
-from typing import Optional, List
-from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QFrame,
-    QLabel,
-    QPushButton,
-    QComboBox,
-    QVBoxLayout,
-    QHBoxLayout,
-    QMessageBox,
-)
+import sys
+from typing import List, Optional
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
+                             QLabel, QMainWindow, QMessageBox, QPushButton,
+                             QVBoxLayout, QWidget)
 from qt_material import apply_stylesheet
 
 from src.core.analysis_service import AnalysisService
 from src.core.plugin_registry import plugin_registry
 from src.ui.analysis_window import AnalysisWindow
-from src.utils.resources import resource_path, load_pixmap_safely
 from src.utils.config import app_config
+from src.utils.resources import load_pixmap_safely, resource_path
 
 
 class MainWindow(QMainWindow):

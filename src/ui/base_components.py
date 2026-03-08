@@ -3,9 +3,11 @@ Base UI components and progress handling.
 """
 
 from typing import Optional
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QProgressBar
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize
+
+from PyQt6.QtCore import QSize, Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QIcon, QMovie
+from PyQt6.QtWidgets import QDialog, QLabel, QProgressBar, QVBoxLayout
+
 from src.core.interfaces import IProgressCallback
 from src.utils.resources import resource_path
 

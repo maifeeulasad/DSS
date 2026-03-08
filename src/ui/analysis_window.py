@@ -4,33 +4,21 @@ Analysis window for configuring and running sequence analysis.
 
 import os
 from typing import Optional
-from PyQt6.QtWidgets import (
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QLineEdit,
-    QFileDialog,
-    QRadioButton,
-    QButtonGroup,
-    QSpinBox,
-    QFrame,
-    QMessageBox,
-)
+
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon, QPixmap, QGuiApplication
+from PyQt6.QtGui import QGuiApplication, QIcon, QPixmap
+from PyQt6.QtWidgets import (QButtonGroup, QFileDialog, QFrame, QHBoxLayout,
+                             QLabel, QLineEdit, QMainWindow, QMessageBox,
+                             QPushButton, QRadioButton, QSpinBox, QVBoxLayout,
+                             QWidget)
 
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import AnalysisResult, MethodConfig
-from src.ui.base_components import WorkerThread, ProgressDialog, ProgressCallback
-from src.utils.resources import (
-    resource_path,
-    load_pixmap_safely,
-    get_phylo_tree_directory,
-)
+from src.ui.base_components import (ProgressCallback, ProgressDialog,
+                                    WorkerThread)
 from src.utils.config import app_config
+from src.utils.resources import (get_phylo_tree_directory, load_pixmap_safely,
+                                 resource_path)
 
 
 class AnalysisWindow(QMainWindow):

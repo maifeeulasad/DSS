@@ -4,13 +4,10 @@ Main application service that orchestrates the analysis workflow.
 
 import os
 from typing import List, Optional
-from src.core.interfaces import (
-    ISequenceProcessor,
-    SequenceData,
-    AnalysisResult,
-    MethodConfig,
-    IProgressCallback,
-)
+
+from src.core.interfaces import (AnalysisResult, IProgressCallback,
+                                 ISequenceProcessor, MethodConfig,
+                                 SequenceData)
 from src.core.plugin_registry import plugin_registry
 
 
