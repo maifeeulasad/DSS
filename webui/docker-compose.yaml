@@ -4,4 +4,4 @@ services:
   reactpipeline:
     build: .
     ports:
-      - "3010:3010"
+      - "4173:4173"
