@@ -33,7 +33,9 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
   let nodeId = 0;
 
   function getNextId(): string {
-    return `node_${nodeId++}`;
+    const id = nodeId;
+    nodeId += 1;
+    return `node_${id}`;
   }
 
   function parseNode(str: string, start: number): { node: PhylogeneticNode; end: number } {
@@ -46,7 +48,7 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
 
     // If starts with '(', parse children
     if (str[i] === '(') {
-      i++; // skip '('
+      i += 1; // skip '('
 
       while (i < str.length && str[i] !== ')') {
         const { node: child, end } = parseNode(str, i);
@@ -54,12 +56,12 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
         i = end;
 
         if (str[i] === ',') {
-          i++; // skip ','
+          i += 1; // skip ','
         }
       }
 
       if (str[i] === ')') {
-        i++; // skip ')'
+        i += 1; // skip ')'
       }
     }
 
@@ -76,7 +78,7 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
       } else {
         label += str[i];
       }
-      i++;
+      i += 1;
     }
 
     // Set node properties
@@ -99,6 +101,7 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
     const { node } = parseNode(cleanNewick, 0);
     return node;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error parsing Newick format:', error);
     return null;
   }
