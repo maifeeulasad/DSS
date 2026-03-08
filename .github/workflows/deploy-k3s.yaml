@@ -86,10 +86,22 @@ jobs:
           
           # Verify API is responding
           echo "=== API Health Check ==="
-          kubectl port-forward -n dss svc/dss-api-service 8000:8000 &
+          kubectl port-forward -n dss svc/dss-api-service 8000:8000 > /dev/null 2>&1 &
+          PF_PID=$!
           sleep 2
-          curl -s http://localhost:8000/docs | head -20 || echo "API not yet ready"
-          pkill -f "port-forward" || true
+          
+          # Check API health with timeout
+          if curl -s --max-time 5 http://localhost:8000/docs > /tmp/docs_response.html 2>/dev/null; then
+            echo "✓ API is responding"
+            echo "Response preview:"
+            head -10 /tmp/docs_response.html
+          else
+            echo "✗ API health check failed"
+          fi
+          
+          # Kill port-forward process
+          kill $PF_PID 2>/dev/null || true
+          wait $PF_PID 2>/dev/null || true
           
           echo "Deployment verification complete!"
           EOF
