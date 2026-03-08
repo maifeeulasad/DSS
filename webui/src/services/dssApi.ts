@@ -36,7 +36,7 @@ export interface SequenceData {
 }
 
 class DSSApiClient {
-  private static baseUrl: string;
+  private static baseUrl: string = 'http://107.175.17.233:30000';
 
   constructor(baseUrl = 'http://107.175.17.233:30000') {
     DSSApiClient.baseUrl = baseUrl;
