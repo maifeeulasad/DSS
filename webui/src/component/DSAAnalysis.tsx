@@ -7,7 +7,6 @@ import {
   Typography,
   Space,
   Alert,
-  Spin,
   Table,
   Collapse,
   Form,
@@ -17,8 +16,8 @@ import {
 } from 'antd';
 import { InboxOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import type { UploadProps, UploadFile } from 'antd';
-import { dssApi, MethodInfo, SequenceData, AnalysisResponse } from '../services/dssApi';
-import PhylogeneticTree from '../components/PhylogeneticTree';
+import { MethodInfo, SequenceData, AnalysisResponse, DSSApiClient } from '../services/dssApi';
+import { PhylogeneticTree } from '../components/PhylogeneticTree';
 
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
@@ -34,25 +33,26 @@ export const DSAAnalysis: React.FC = () => {
   const [results, setResults] = useState<AnalysisResponse | null>(null);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    loadMethods();
-  }, []);
-
   const loadMethods = async () => {
     try {
       setLoading(true);
-      const methodList = await dssApi.getMethods();
+      const methodList = await DSSApiClient.getMethods();
       setMethods(methodList);
       if (methodList.length > 0) {
         setSelectedMethod(methodList[0].name);
       }
     } catch (error) {
       message.error('Failed to load analysis methods');
+      // eslint-disable-next-line no-console
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadMethods();
+  }, []);
 
   const uploadProps: UploadProps = {
     multiple: true,
@@ -75,11 +75,12 @@ export const DSAAnalysis: React.FC = () => {
 
     try {
       setLoading(true);
-      const sequences = await dssApi.uploadAndParse(uploadedFiles);
+      const sequences = await DSSApiClient.uploadAndParse(uploadedFiles);
       setSequenceData(sequences);
       message.success(`Parsed ${sequences.length} sequences`);
     } catch (error) {
       message.error('Failed to parse uploaded files');
+      // eslint-disable-next-line no-console
       console.error(error);
     } finally {
       setLoading(false);
@@ -102,7 +103,7 @@ export const DSAAnalysis: React.FC = () => {
       const formValues = form.getFieldsValue();
 
       // Prepare files for analysis
-      const sequenceFiles = await dssApi.prepareFilesForAnalysis(uploadedFiles);
+      const sequenceFiles = await DSSApiClient.prepareFilesForAnalysis(uploadedFiles);
 
       const analysisRequest = {
         files: sequenceFiles,
@@ -110,11 +111,14 @@ export const DSAAnalysis: React.FC = () => {
         parameters: formValues,
       };
 
-      const result = await dssApi.analyzeSequences(analysisRequest);
+      const result = await DSSApiClient.analyzeSequences(analysisRequest);
       setResults(result);
-      message.success(`Analysis completed in ${result.execution_time?.toFixed(2)}s`);
+      const execTime = result.execution_time?.toFixed(2);
+      message.success(`Analysis completed in ${execTime}s`);
+      // eslint-disable-next-line no-console
     } catch (error) {
       message.error(`Analysis failed: ${(error as Error).message}`);
+      // eslint-disable-next-line no-console
       console.error(error);
     } finally {
       setAnalyzing(false);
@@ -156,6 +160,7 @@ export const DSAAnalysis: React.FC = () => {
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* File Upload */}
         <Card title="Upload Sequence Files">
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
           <Dragger {...uploadProps}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
@@ -269,6 +274,7 @@ export const DSAAnalysis: React.FC = () => {
                   showControls
                   direction="LR"
                   onNodeClick={(node) => {
+                    // eslint-disable-next-line no-console
                     console.log('Node clicked:', node);
                     message.info(`Selected: ${node.label || node.id}`);
                   }}
