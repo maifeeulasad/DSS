@@ -1,0 +1,83 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint Python",
+      "type": "shell",
+      "command": "pylint",
+      "args": ["src/", "--fail-under=7.0"],
+      "problemMatcher": {
+        "owner": "python",
+        "fileLocation": ["absolute"],
+        "pattern": {
+          "file": "(.*?):(\\d+):(\\d+): (.*?) (.*)",
+          "location": "$2:$3",
+          "message": "$5 - $4"
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Lint JavaScript/TypeScript",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["lint"],
+      "options": {
+        "cwd": "${workspaceFolder}/webui"
+      },
+      "problemMatcher": {
+        "owner": "eslint",
+        "fileLocation": ["absolute"],
+        "pattern": {
+          "file": "(.*?):(\\d+):(\\d+): (.*)",
+          "location": "$2:$3",
+          "message": "$4"
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Lint All (Python + JavaScript)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "echo '=== Linting Python ===' && pylint src/ --fail-under=7.0 && echo '\\n=== Linting JavaScript ===' && cd webui && pnpm lint"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Fix Python Lint Issues",
+      "type": "shell",
+      "command": "pylint",
+      "args": ["src/", "--fail-under=7.0", "--disable=all", "--enable=C0301,W0612"],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Fix JavaScript Lint Issues",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["lint:fix"],
+      "options": {
+        "cwd": "${workspaceFolder}/webui"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      }
+    }
+  ]
+}
