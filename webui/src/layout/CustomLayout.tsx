@@ -17,7 +17,7 @@ const defaultMenus: MenuDataItem[] = [
     icon: <HomeOutlined />,
   },
   {
-    path: '/app/',
+    path: '/analysis/',
     name: 'Application',
     icon: <AppstoreOutlined />,
   },

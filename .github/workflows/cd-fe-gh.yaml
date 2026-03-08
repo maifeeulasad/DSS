@@ -120,7 +120,7 @@ jobs:
                   <h1>🧬 DNA Sequence Similarities</h1>
                   <p>Explore DNA sequence analysis tools and comprehensive documentation</p>
                   <div class="links">
-                      <a href="./app/" class="link-app">🚀 Web Application</a>
+                      <a href="./analysis/" class="link-app">🚀 Web Application</a>
                       <a href="./docs/" class="link-docs">📚 Documentation</a>
                   </div>
               </div>
