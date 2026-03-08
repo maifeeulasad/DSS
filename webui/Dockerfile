@@ -10,6 +10,6 @@ RUN pnpm i
 
 RUN pnpm build
 
-EXPOSE 3000
+EXPOSE 4173
 
 CMD ["pnpm", "serve"]
