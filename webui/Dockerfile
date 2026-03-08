@@ -1,4 +1,6 @@
-FROM node:18.18.2-alpine3.17
+FROM node:18.18.2-alpine3.17 AS builder
+
+WORKDIR /app
 
 COPY . .
 
@@ -8,8 +10,14 @@ RUN pnpm i
 
 RUN pnpm build
 
-RUN npm i -g serve
+# Stage 2: Nginx
+FROM nginx:1.25-alpine
+
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 3010
 
-CMD ["serve", "-l", "3010", "-s","build"]
+CMD ["nginx", "-g", "daemon off;"]
