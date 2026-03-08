@@ -24,7 +24,7 @@ spec:
         image: dss-ui:latest
         imagePullPolicy: Never  # Use local images (for k3s setup)
         ports:
-        - containerPort: 3010
+        - containerPort: 4173
           name: http
         
         resources:
@@ -71,8 +71,8 @@ spec:
     app: dss-ui
   ports:
   - name: http
-    port: 3010
-    targetPort: 3010
+    port: 4173
+    targetPort: 4173
     nodePort: 30001
     protocol: TCP
 
@@ -91,6 +91,6 @@ spec:
     app: dss-ui
   ports:
   - name: http
-    port: 3010
-    targetPort: 3010
+    port: 4173
+    targetPort: 4173
     protocol: TCP
