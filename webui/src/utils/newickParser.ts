@@ -29,9 +29,9 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
 
   // Remove whitespace and trailing semicolon
   const cleanNewick = newick.trim().replace(/;$/, '');
-  
+
   let nodeId = 0;
-  
+
   function getNextId(): string {
     return `node_${nodeId++}`;
   }
@@ -39,25 +39,25 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
   function parseNode(str: string, start: number): { node: PhylogeneticNode; end: number } {
     const node: PhylogeneticNode = {
       id: getNextId(),
-      children: []
+      children: [],
     };
 
     let i = start;
-    
+
     // If starts with '(', parse children
     if (str[i] === '(') {
       i++; // skip '('
-      
+
       while (i < str.length && str[i] !== ')') {
         const { node: child, end } = parseNode(str, i);
         node.children!.push(child);
         i = end;
-        
+
         if (str[i] === ',') {
           i++; // skip ','
         }
       }
-      
+
       if (str[i] === ')') {
         i++; // skip ')'
       }
@@ -67,7 +67,7 @@ export function parseNewick(newick: string): PhylogeneticNode | null {
     let label = '';
     let branchLength = '';
     let inBranchLength = false;
-    
+
     while (i < str.length && str[i] !== ',' && str[i] !== ')' && str[i] !== '(') {
       if (str[i] === ':') {
         inBranchLength = true;

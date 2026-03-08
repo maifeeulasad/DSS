@@ -67,11 +67,11 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
   const layoutTreeData = (treeData: G6TreeData): any => {
     const nodes: any[] = [];
     const edges: any[] = [];
-    
+
     // Calculate tree dimensions
     function getTreeDepth(node: G6TreeData): number {
       if (!node.children || node.children.length === 0) return 1;
-      return 1 + Math.max(...node.children.map(child => getTreeDepth(child)));
+      return 1 + Math.max(...node.children.map((child) => getTreeDepth(child)));
     }
 
     function getLeafCount(node: G6TreeData): number {
@@ -81,7 +81,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
 
     const depth = getTreeDepth(treeData);
     const leafCount = getLeafCount(treeData);
-    
+
     const levelSpacing = direction === 'LR' || direction === 'RL' ? (width - 100) / (depth - 1) : (height - 100) / (depth - 1);
     const nodeSpacing = direction === 'LR' || direction === 'RL' ? (height - 100) / leafCount : (width - 100) / leafCount;
 
@@ -90,14 +90,14 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     function traverse(node: G6TreeData, level: number, parentId?: string): number {
       const nodeId = node.id;
       let currentLeafIndex = leafIndex;
-      
+
       if (!node.children || node.children.length === 0) {
         // Leaf node
         leafIndex++;
       } else {
         // Internal node - position at average of children
         const childPositions: number[] = [];
-        node.children.forEach(child => {
+        node.children.forEach((child) => {
           const childPos = traverse(child, level + 1, nodeId);
           childPositions.push(childPos);
         });
@@ -105,7 +105,8 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
       }
 
       // Calculate position based on direction
-      let x, y;
+      let x; let
+        y;
       if (direction === 'LR') {
         x = level * levelSpacing + 50;
         y = currentLeafIndex * nodeSpacing + 50;
@@ -147,7 +148,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     }
 
     traverse(treeData, 0);
-    
+
     return { nodes, edges };
   };
 
@@ -160,9 +161,9 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     }
 
     // Map direction to G6 format
-    const layoutDirection = direction === 'LR' ? 'LR' : 
-                           direction === 'RL' ? 'RL' :
-                           direction === 'TB' ? 'TB' : 'BT';
+    const layoutDirection = direction === 'LR' ? 'LR' :
+      direction === 'RL' ? 'RL' :
+        direction === 'TB' ? 'TB' : 'BT';
 
     const graph = new Graph({
       container: containerRef.current,
@@ -241,15 +242,15 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
     graph.on('node:click', (evt) => {
       const { item } = evt;
       const model = item!.getModel();
-      
+
       // Clear previous selection
       graph.getNodes().forEach((node) => {
         graph.clearItemStates(node, 'selected');
       });
-      
+
       // Set current selection
       graph.setItemState(item!, 'selected', true);
-      
+
       if (onNodeClick) {
         onNodeClick(model);
       }
@@ -329,7 +330,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
       const canvas = graphRef.current.get('canvas');
       const renderer = canvas.get('renderer');
       const canvasElement = renderer.get('canvas');
-      
+
       if (canvasElement) {
         const dataURL = canvasElement.toDataURL('image/png');
         const link = document.createElement('a');
@@ -403,7 +404,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
           </Space>
         </div>
       )}
-      
+
       <div
         ref={containerRef}
         style={{
@@ -414,7 +415,7 @@ const PhylogeneticTree: React.FC<PhylogeneticTreeProps> = ({
           overflow: 'hidden',
         }}
       />
-      
+
       <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
         Use mouse wheel to zoom, drag to pan, click nodes to select
       </div>

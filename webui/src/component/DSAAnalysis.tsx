@@ -58,11 +58,11 @@ export const DSAAnalysis: React.FC = () => {
     multiple: true,
     accept: '.fasta,.fa,.fas,.zip',
     beforeUpload: (file) => {
-      setUploadedFiles(prev => [...prev, file]);
+      setUploadedFiles((prev) => [...prev, file]);
       return false; // Prevent auto upload
     },
     onRemove: (file: UploadFile) => {
-      setUploadedFiles(prev => prev.filter(f => f.name !== file.name));
+      setUploadedFiles((prev) => prev.filter((f) => f.name !== file.name));
       setSequenceData([]);
     },
   };
@@ -100,10 +100,10 @@ export const DSAAnalysis: React.FC = () => {
     try {
       setAnalyzing(true);
       const formValues = form.getFieldsValue();
-      
+
       // Prepare files for analysis
       const sequenceFiles = await dssApi.prepareFilesForAnalysis(uploadedFiles);
-      
+
       const analysisRequest = {
         files: sequenceFiles,
         method: selectedMethod,
@@ -114,14 +114,14 @@ export const DSAAnalysis: React.FC = () => {
       setResults(result);
       message.success(`Analysis completed in ${result.execution_time?.toFixed(2)}s`);
     } catch (error) {
-      message.error('Analysis failed: ' + (error as Error).message);
+      message.error(`Analysis failed: ${(error as Error).message}`);
       console.error(error);
     } finally {
       setAnalyzing(false);
     }
   };
 
-  const selectedMethodInfo = methods.find(m => m.name === selectedMethod);
+  const selectedMethodInfo = methods.find((m) => m.name === selectedMethod);
 
   const sequenceColumns = [
     {
@@ -140,7 +140,7 @@ export const DSAAnalysis: React.FC = () => {
       key: 'sequence',
       render: (text: string) => (
         <Text code style={{ fontSize: '12px' }}>
-          {text.length > 50 ? text.substring(0, 50) + '...' : text}
+          {text.length > 50 ? `${text.substring(0, 50)}...` : text}
         </Text>
       ),
     },
@@ -165,7 +165,7 @@ export const DSAAnalysis: React.FC = () => {
               Support for FASTA files (.fasta, .fa, .fas) and ZIP archives
             </p>
           </Dragger>
-          
+
           {uploadedFiles.length > 0 && (
             <div style={{ marginTop: '16px' }}>
               <Button onClick={parseUploadedFiles} loading={loading}>
@@ -198,7 +198,7 @@ export const DSAAnalysis: React.FC = () => {
                 loading={loading}
                 style={{ width: '100%' }}
               >
-                {methods.map(method => (
+                {methods.map((method) => (
                   <Select.Option key={method.name} value={method.name}>
                     {method.name}
                   </Select.Option>
@@ -211,12 +211,12 @@ export const DSAAnalysis: React.FC = () => {
                 <Panel header="Method Parameters" key="params">
                   <Paragraph>{selectedMethodInfo.description}</Paragraph>
                   <Divider />
-                  
+
                   {Object.entries(selectedMethodInfo.parameters).map(([key, defaultValue]) => (
                     <Form.Item
                       key={key}
                       name={key}
-                      label={key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      label={key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                       initialValue={defaultValue}
                     >
                       {typeof defaultValue === 'number' ? (
@@ -259,14 +259,14 @@ export const DSAAnalysis: React.FC = () => {
                 type="success"
                 showIcon
               />
-              
+
               {/* Phylogenetic Tree Visualization */}
               {results.tree_newick && (
                 <PhylogeneticTree
                   data={results.tree_newick}
                   width={800}
                   height={500}
-                  showControls={true}
+                  showControls
                   direction="LR"
                   onNodeClick={(node) => {
                     console.log('Node clicked:', node);
@@ -274,14 +274,14 @@ export const DSAAnalysis: React.FC = () => {
                   }}
                 />
               )}
-              
+
               <Collapse>
                 <Panel header="Phylogenetic Tree (Newick Format)" key="tree">
                   <Text code style={{ fontSize: '12px', wordBreak: 'break-all' }}>
                     {results.tree_newick}
                   </Text>
                 </Panel>
-                
+
                 <Panel header="Distance Matrix" key="matrix">
                   <Table
                     dataSource={results.distance_matrix?.map((row, i) => ({

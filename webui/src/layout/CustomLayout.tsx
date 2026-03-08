@@ -88,8 +88,6 @@ interface ICustomLayoutProps {
 const CustomLayout = ({ children }: ICustomLayoutProps) => {
   const location = useLocation();
 
-
-
   return (
     <ProLayout
       logo={logo}

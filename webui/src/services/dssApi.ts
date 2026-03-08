@@ -60,7 +60,7 @@ class DSSApiClient {
 
   async uploadAndParse(files: File[]): Promise<SequenceData[]> {
     const formData = new FormData();
-    files.forEach(file => {
+    files.forEach((file) => {
       formData.append('files', file);
     });
 
@@ -117,7 +117,7 @@ class DSSApiClient {
   // Helper method to prepare files for analysis
   async prepareFilesForAnalysis(files: File[]): Promise<SequenceFile[]> {
     const sequenceFiles: SequenceFile[] = [];
-    
+
     for (const file of files) {
       const base64Content = await this.fileToBase64(file);
       sequenceFiles.push({
@@ -125,7 +125,7 @@ class DSSApiClient {
         content: base64Content,
       });
     }
-    
+
     return sequenceFiles;
   }
 }
