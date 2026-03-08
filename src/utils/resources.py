@@ -1,6 +1,7 @@
 """
 Utility functions for resource management and file operations.
 """
+
 import os
 import sys
 from typing import Tuple
@@ -18,7 +19,9 @@ def resource_path(relative_path: str) -> str:
     return os.path.join(base_path, relative_path)
 
 
-def load_pixmap_safely(image_path: str, default_size: Tuple[int, int] = (130, 50)) -> QPixmap:
+def load_pixmap_safely(
+    image_path: str, default_size: Tuple[int, int] = (130, 50)
+) -> QPixmap:
     """Load pixmap safely with fallback"""
     full_path = resource_path(image_path)
     if os.path.exists(full_path):
@@ -40,7 +43,7 @@ def count_files_with_extension(directory_path: str, extension: str) -> int:
     """Count files with a specific extension in a directory"""
     if not os.path.exists(directory_path):
         return 0
-    
+
     count = 0
     try:
         for file in os.listdir(directory_path):
@@ -48,7 +51,7 @@ def count_files_with_extension(directory_path: str, extension: str) -> int:
                 count += 1
     except Exception:
         count = 0
-    
+
     return count
 
 

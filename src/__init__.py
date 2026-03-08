@@ -1,6 +1,7 @@
 """
 Package initialization and imports for the new architecture.
 """
+
 import sys
 import os
 
@@ -9,19 +10,21 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Core components
 from src.core import (
-    AnalysisService, plugin_registry,
-    ISequenceProcessor, ISequenceLoader, ITreeVisualizer,
-    SequenceData, AnalysisResult, MethodConfig
+    AnalysisService,
+    plugin_registry,
+    ISequenceProcessor,
+    ISequenceLoader,
+    ITreeVisualizer,
+    SequenceData,
+    AnalysisResult,
+    MethodConfig,
 )
 
-# UI components  
+# UI components
 from src.ui import MainWindow, AnalysisWindow, create_application, main
 
 # Plugins
-from src.plugins import (
-    DPTMProcessor, CGRProcessor,
-    TMProcessor, PTMProcessor
-)
+from src.plugins import DPTMProcessor, CGRProcessor, TMProcessor, PTMProcessor
 
 # Adapters
 from src.adapters import BioPythonSequenceLoader, MatplotlibTreeVisualizer
@@ -38,26 +41,35 @@ __description__ = "DNA Sequence Similarity Analysis with Plugin Architecture"
 
 __all__ = [
     # Core
-    'AnalysisService', 'plugin_registry',
-    'ISequenceProcessor', 'ISequenceLoader', 'ITreeVisualizer', 
-    'SequenceData', 'AnalysisResult', 'MethodConfig',
-    
+    "AnalysisService",
+    "plugin_registry",
+    "ISequenceProcessor",
+    "ISequenceLoader",
+    "ITreeVisualizer",
+    "SequenceData",
+    "AnalysisResult",
+    "MethodConfig",
     # UI
-    'MainWindow', 'AnalysisWindow', 'create_application', 'main',
-    
+    "MainWindow",
+    "AnalysisWindow",
+    "create_application",
+    "main",
     # Plugins
-    'DPTMProcessor', 'CGRProcessor', 'TMProcessor', 'PTMProcessor',
-    
+    "DPTMProcessor",
+    "CGRProcessor",
+    "TMProcessor",
+    "PTMProcessor",
     # Adapters
-    'BioPythonSequenceLoader', 'MatplotlibTreeVisualizer',
-    
+    "BioPythonSequenceLoader",
+    "MatplotlibTreeVisualizer",
     # API
-    'create_app',
-    
+    "create_app",
     # Utils
-    'app_config', 'resource_path'
+    "app_config",
+    "resource_path",
 ]
 
 # Initialize the phylo directory on import
 from src.utils.resources import get_phylo_tree_directory
+
 get_phylo_tree_directory()

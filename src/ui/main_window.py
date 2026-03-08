@@ -1,12 +1,21 @@
 """
 Main window implementation with plugin-based architecture.
 """
+
 import sys
 import os
 from typing import Optional, List
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QFrame, QLabel, QPushButton,
-    QComboBox, QVBoxLayout, QHBoxLayout, QMessageBox
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QFrame,
+    QLabel,
+    QPushButton,
+    QComboBox,
+    QVBoxLayout,
+    QHBoxLayout,
+    QMessageBox,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
@@ -21,7 +30,7 @@ from src.utils.config import app_config
 
 class MainWindow(QMainWindow):
     """Main application window with method selection"""
-    
+
     def __init__(self):
         super().__init__()
         self.analysis_service = AnalysisService()
@@ -30,27 +39,27 @@ class MainWindow(QMainWindow):
         self._setup_ui()
         self._register_plugins()
         self._load_methods()
-    
+
     def __del__(self):
         """Destructor to ensure cleanup"""
         try:
             # Break circular references
-            if hasattr(self, 'analysis_service'):
+            if hasattr(self, "analysis_service"):
                 self.analysis_service = None
-            if hasattr(self, 'analysis_window'):
+            if hasattr(self, "analysis_window"):
                 self.analysis_window = None
-            if hasattr(self, '_pixmaps'):
+            if hasattr(self, "_pixmaps"):
                 self._pixmaps = None
         except:
             pass  # Ignore errors during destruction
-    
+
     def _setup_ui(self):
         """Setup the user interface"""
         config = app_config.ui
-        
+
         self.setWindowTitle(config.window_title)
         self.resize(*config.window_size)
-        
+
         # Set window icon safely
         icon_path = resource_path(app_config.paths.demo_logo)
         if os.path.exists(icon_path):
@@ -59,65 +68,67 @@ class MainWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         main_v = QVBoxLayout(central)
-        
+
         # Logo layout
         self._create_logo_layout(main_v)
-        
+
         # Content layout
         self._create_content_layout(main_v)
-    
+
     def _create_logo_layout(self, main_layout: QVBoxLayout):
         """Create the logo layout section"""
         logo_h_layout = QHBoxLayout()
-        
+
         # BAU logo
         bau_logo_label = QLabel()
         bau_logo_pixmap = load_pixmap_safely(
-            app_config.paths.bau_logo, 
-            app_config.ui.logo_size
+            app_config.paths.bau_logo, app_config.ui.logo_size
         )
         self._pixmaps.append(bau_logo_pixmap)  # Track for cleanup
         bau_logo_label.setFixedSize(*app_config.ui.logo_size)
-        bau_logo_label.setPixmap(bau_logo_pixmap.scaled(
-            *app_config.ui.logo_size, 
-            Qt.AspectRatioMode.KeepAspectRatio, 
-            Qt.TransformationMode.SmoothTransformation
-        ))
+        bau_logo_label.setPixmap(
+            bau_logo_pixmap.scaled(
+                *app_config.ui.logo_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
         bau_logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         logo_h_layout.addWidget(bau_logo_label)
-        
+
         # Title
         title = QLabel(app_config.ui.window_title)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setObjectName("TitleLabel")
         logo_h_layout.addWidget(title, stretch=1)
-        
+
         # ICT logo
         ict_logo_label = QLabel()
         ict_logo_pixmap = load_pixmap_safely(
-            app_config.paths.ict_logo, 
-            app_config.ui.logo_size
+            app_config.paths.ict_logo, app_config.ui.logo_size
         )
         self._pixmaps.append(ict_logo_pixmap)  # Track for cleanup
         ict_logo_label.setFixedSize(*app_config.ui.logo_size)
-        ict_logo_label.setPixmap(ict_logo_pixmap.scaled(
-            *app_config.ui.logo_size, 
-            Qt.AspectRatioMode.KeepAspectRatio, 
-            Qt.TransformationMode.SmoothTransformation
-        ))
+        ict_logo_label.setPixmap(
+            ict_logo_pixmap.scaled(
+                *app_config.ui.logo_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
         ict_logo_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         logo_h_layout.addWidget(ict_logo_label)
-        
+
         # Set properties for styling
         bau_logo_label.setProperty("logo", True)
         ict_logo_label.setProperty("logo", True)
-        
+
         main_layout.addLayout(logo_h_layout)
-    
+
     def _create_content_layout(self, main_layout: QVBoxLayout):
         """Create the main content layout"""
         content = QVBoxLayout()
-        
+
         # Method selection frame
         select_frame = self._create_method_selection_frame()
         content.addWidget(select_frame)
@@ -125,9 +136,9 @@ class MainWindow(QMainWindow):
         # Main panel with tree placeholder
         main_panel = self._create_main_panel()
         content.addWidget(main_panel, 1)
-        
+
         main_layout.addLayout(content)
-    
+
     def _create_method_selection_frame(self) -> QFrame:
         """Create the method selection frame"""
         select = QFrame()
@@ -137,7 +148,7 @@ class MainWindow(QMainWindow):
             background-color:transparent;
             }""")
         select_v = QHBoxLayout(select)
-        
+
         # Method selection label
         select_lbl = QLabel("Select Method")
         select_lbl.setStyleSheet(
@@ -147,22 +158,22 @@ class MainWindow(QMainWindow):
             "background-color:transparent;"
         )
         select_v.addWidget(select_lbl)
-        
+
         # Method combo box
         self.method_combo = QComboBox()
         self.method_combo.setCurrentIndex(0)
         self.method_combo.setStyleSheet("background-color:white;")
         select_v.addWidget(self.method_combo)
-        
+
         # Start button
         self.method_btn = QPushButton("Start")
         self.method_btn.clicked.connect(self._start_analysis)
         select_v.addWidget(self.method_btn)
-        
+
         select_v.addStretch(0)
-        
+
         return select
-    
+
     def _create_main_panel(self) -> QFrame:
         """Create the main display panel"""
         main_panel = QFrame()
@@ -171,70 +182,70 @@ class MainWindow(QMainWindow):
 
         view = QLabel("Phylogenetic tree")
         view_pix = load_pixmap_safely(
-            app_config.paths.tree_placeholder, 
-            app_config.ui.tree_display_size
+            app_config.paths.tree_placeholder, app_config.ui.tree_display_size
         )
         self._pixmaps.append(view_pix)  # Track for cleanup
-        view.setPixmap(view_pix.scaled(
-            *app_config.ui.tree_display_size, 
-            Qt.AspectRatioMode.KeepAspectRatio, 
-            Qt.TransformationMode.SmoothTransformation
-        ))
+        view.setPixmap(
+            view_pix.scaled(
+                *app_config.ui.tree_display_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
         view.setFrameShape(QFrame.Shape.Box)
         view.setAlignment(Qt.AlignmentFlag.AlignCenter)
         mp_l.addWidget(view, stretch=1)
 
         return main_panel
-    
+
     def _register_plugins(self):
         """Register all available plugins"""
         from src.core.plugin_loader import plugin_loader
+
         plugin_loader.load_all_plugins()
-        
+
         loaded_plugins = plugin_loader.get_loaded_plugins()
         print(f"Loaded plugins: {', '.join(loaded_plugins)}")
-    
+
     def _load_methods(self):
         """Load available analysis methods into the combo box"""
         available_methods = self.analysis_service.get_available_methods()
         self.method_combo.addItems(available_methods)
-    
+
     def _start_analysis(self):
         """Start the analysis with the selected method"""
         method_name = self.method_combo.currentText()
-        
+
         try:
             # Check if method is implemented
             processor = plugin_registry.get_processor_by_name(method_name)
             if not processor:
                 QMessageBox.information(
-                    self, "Information", 
-                    "The selected method is not available!"
+                    self, "Information", "The selected method is not available!"
                 )
                 return
-            
+
             # Open analysis window
             if self.analysis_window is None:
                 self.analysis_window = AnalysisWindow(
-                    self.analysis_service, 
-                    method_name
+                    self.analysis_service, method_name
                 )
             else:
                 self.analysis_window.set_method(method_name)
-            
+
             self.analysis_window.show()
-            
+
         except NotImplementedError:
             QMessageBox.information(
-                self, "Information", 
-                "The method is currently being implemented!"
+                self, "Information", "The method is currently being implemented!"
             )
         except Exception as e:
             QMessageBox.critical(
-                self, "Error", 
-                f"Please check everything and try again!\nError: {str(e)}"
+                self,
+                "Error",
+                f"Please check everything and try again!\nError: {str(e)}",
             )
-    
+
     def closeEvent(self, event):
         """Handle window close event with proper cleanup"""
         # Clean up analysis window
@@ -245,26 +256,26 @@ class MainWindow(QMainWindow):
             except RuntimeError:
                 pass  # Already deleted
             self.analysis_window = None
-        
+
         # Disconnect signals to break circular references
         try:
-            if hasattr(self, 'method_combo') and self.method_combo is not None:
+            if hasattr(self, "method_combo") and self.method_combo is not None:
                 try:
                     self.method_combo.currentIndexChanged.disconnect()
                 except TypeError:
                     pass  # No connections
         except (RuntimeError, AttributeError):
             pass  # Already disconnected or deleted
-        
+
         try:
-            if hasattr(self, 'method_btn') and self.method_btn is not None:
+            if hasattr(self, "method_btn") and self.method_btn is not None:
                 try:
                     self.method_btn.clicked.disconnect()
                 except TypeError:
                     pass  # No connections
         except (RuntimeError, AttributeError):
             pass  # Already disconnected or deleted
-        
+
         # Clean up pixmaps
         for pixmap in self._pixmaps:
             try:
@@ -275,15 +286,15 @@ class MainWindow(QMainWindow):
                 pass
         self._pixmaps.clear()
         self._pixmaps = None
-        
+
         # Clean up references to break cycles
-        if hasattr(self, 'analysis_service'):
+        if hasattr(self, "analysis_service"):
             self.analysis_service = None
-        if hasattr(self, 'method_combo'):
+        if hasattr(self, "method_combo"):
             self.method_combo = None
-        if hasattr(self, 'method_btn'):
+        if hasattr(self, "method_btn"):
             self.method_btn = None
-        
+
         # Accept the close event
         event.accept()
 
@@ -291,24 +302,24 @@ class MainWindow(QMainWindow):
 def create_application() -> QApplication:
     """Create and configure the QApplication"""
     app = QApplication(sys.argv)
-    
+
     # Apply material theme
-    apply_stylesheet(app, theme='light_blue.xml')
-    
+    apply_stylesheet(app, theme="light_blue.xml")
+
     # Load custom stylesheet safely
     style_path = resource_path(app_config.paths.style_qss)
     if os.path.exists(style_path):
         with open(style_path, "r") as file:
             app.setStyleSheet(file.read())
-    
+
     return app
- 
+
 
 def main():
     """Main application entry point"""
     app = create_application()
-    
+
     main_window = MainWindow()
     main_window.show()
-    
+
     sys.exit(app.exec())
