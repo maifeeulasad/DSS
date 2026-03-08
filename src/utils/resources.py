@@ -4,10 +4,10 @@ Utility functions for resource management and file operations.
 
 import os
 import sys
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
+if TYPE_CHECKING:
+    from PyQt6.QtGui import QPixmap
 
 
 def resource_path(relative_path: str) -> str:
@@ -22,8 +22,11 @@ def resource_path(relative_path: str) -> str:
 
 def load_pixmap_safely(
     image_path: str, default_size: Tuple[int, int] = (130, 50)
-) -> QPixmap:
+) -> "QPixmap":
     """Load pixmap safely with fallback"""
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtGui import QPixmap
+
     full_path = resource_path(image_path)
     if os.path.exists(full_path):
         return QPixmap(full_path)
