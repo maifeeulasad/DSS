@@ -12,4 +12,4 @@ RUN pnpm build
 
 EXPOSE 4173
 
-CMD ["pnpm", "serve"]
+CMD ["npx", "serve", "build", "-l", "4173"]
