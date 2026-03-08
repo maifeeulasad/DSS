@@ -2,6 +2,10 @@ FROM node:18.18.2-alpine3.17
 
 WORKDIR /app
 
+RUN apk update
+
+RUN apk add --no-cache git
+
 COPY . .
 
 RUN npm i -g pnpm
