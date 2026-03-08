@@ -42,13 +42,18 @@ jobs:
             git clone --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }}.git .
           fi
           
-          # Build Docker image
+          # Build backend Docker image
           echo "Building backend Docker image..."
           docker build -f Dockerfile -t dss-api:latest .
           
-          # Load the image into containerd (k3s uses containerd, not Docker)
-          echo "Loading image into containerd..."
+          # Build frontend Docker image
+          echo "Building frontend Docker image..."
+          docker build -f webui/Dockerfile -t dss-ui:latest ./webui
+          
+          # Load the images into containerd (k3s uses containerd, not Docker)
+          echo "Loading images into containerd..."
           docker save dss-api:latest | sudo ctr -n k8s.io images import -
+          docker save dss-ui:latest | sudo ctr -n k8s.io images import -
           
           # Create namespace first if it doesn't exist
           kubectl apply -f k8s/namespace.yaml
@@ -58,14 +63,18 @@ jobs:
           kubectl apply -f k8s/deployment-api.yaml
           kubectl apply -f k8s/ingress.yaml
           
+          echo "Deploying frontend to k3s cluster..."
+          kubectl apply -f k8s/deployment-ui.yaml
+          
           echo "Deployment complete!"
           
-          # Wait for deployment to be ready
-          echo "Waiting for deployment to be ready..."
+          # Wait for deployments to be ready
+          echo "Waiting for deployments to be ready..."
           kubectl rollout status deployment/dss-api -n dss --timeout=5m || true
+          kubectl rollout status deployment/dss-ui -n dss --timeout=5m || true
           
-          # Show running backend service
-          echo "Backend service status:"
+          # Show running services
+          echo "Services status:"
           kubectl get pods -n dss
           kubectl get svc -n dss
           
@@ -82,16 +91,15 @@ jobs:
           
           PROJECT_DIR="/home/${{ secrets.K3S_SERVER_SSH_USERNAME }}/DSS"
           cd $PROJECT_DIR
-          
-          # Check if backend service is running
-          echo "=== Backend Service Status ==="
+          services status
+          echo "=== Services Status ==="
           kubectl get pods -n dss
           kubectl get svc -n dss
           
           # Verify API is responding
           echo "=== API Health Check ==="
           kubectl port-forward -n dss svc/dss-api-service 8000:8000 > /dev/null 2>&1 &
-          PF_PID=$!
+          API_PF_PID=$!
           sleep 2
           
           # Check API health with timeout
@@ -104,7 +112,27 @@ jobs:
           fi
           
           # Kill port-forward process
-          kill $PF_PID 2>/dev/null || true
+          kill $API_PF_PID 2>/dev/null || true
+          wait $API_PF_PID 2>/dev/null || true
+          
+          # Verify UI is responding
+          echo "=== UI Health Check ==="
+          kubectl port-forward -n dss svc/dss-ui-service 3010:3010 > /dev/null 2>&1 &
+          UI_PF_PID=$!
+          sleep 2
+          
+          # Check UI health with timeout
+          if curl -s --max-time 5 http://localhost:3010 > /tmp/ui_response.html 2>/dev/null; then
+            echo "✓ UI is responding"
+            echo "Response preview:"
+            head -5 /tmp/ui_response.html
+          else
+            echo "✗ UI health check failed"
+          fi
+          
+          # Kill port-forward process
+          kill $UI_PF_PID 2>/dev/null || true
+          wait $UI_PF_PID 2>/dev/null || true
           wait $PF_PID 2>/dev/null || true
           
           echo "Deployment verification complete!"
