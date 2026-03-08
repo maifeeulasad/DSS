@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
 from src.api.models import (AnalysisRequest, AnalysisResponse,
@@ -40,6 +41,21 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Add security headers middleware for HTTPS enforcement and mixed content prevention
+    @app.middleware("http")
+    async def add_security_headers(request, call_next):
+        """Add security headers to handle mixed content and enforce HTTPS"""
+        response = await call_next(request)
+        # Enforce HTTPS with HSTS (HTTP Strict Transport Security)
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        # Upgrade insecure requests to HTTPS and set secure CSP
+        response.headers["Content-Security-Policy"] = "upgrade-insecure-requests; default-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https:; connect-src 'self' https:"
+        # Prevent MIME type sniffing
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        # Enable XSS protection
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        return response
 
     # Initialize services
     analysis_service = AnalysisService()
