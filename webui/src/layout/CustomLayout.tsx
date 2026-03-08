@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import type { MenuDataItem } from '@ant-design/pro-components';
 import { PageContainer, ProLayout } from '@ant-design/pro-components';
-import { useLocation, Link } from 'react-router-dom';
 import { notification } from 'antd';
 import { copyText } from 'copy-clipboard-js';
 import CopyOutlined from '@ant-design/icons/CopyOutlined';
@@ -77,40 +76,35 @@ const CustomFooterMenu = ({ collapsed }: ICustomFooterMenuProps) => {
   );
 };
 
-const renderMenuItem = (item: any, dom: React.ReactNode) => <Link to={item.path || '/'}>{dom}</Link>;
+const renderMenuItem = (item: any, dom: React.ReactNode) => <a href={item.path || '/'}>{dom}</a>;
 
-const subMenuItemRender = (item: any, dom: React.ReactNode) => <Link to={item.path || '/'}>{dom}</Link>;
+const subMenuItemRender = (item: any, dom: React.ReactNode) => <a href={item.path || '/'}>{dom}</a>;
 
 interface ICustomLayoutProps {
   children: ReactNode;
 }
 
-const CustomLayout = ({ children }: ICustomLayoutProps) => {
-  const location = useLocation();
-
-  return (
-    <ProLayout
-      logo={logo}
-      title="DSS"
-      style={{ minHeight: '100vh' }}
-      fixSiderbar
-      location={location}
-      menu={{
-        request: async () => loopMenuItem(defaultMenus),
-      }}
-      route={{ routes: defaultMenus }}
-      menuItemRender={renderMenuItem}
-      subMenuItemRender={subMenuItemRender}
-      // eslint-disable-next-line
-      menuFooterRender={(props) => <CustomFooterMenu {...props} />}
-    >
-      <PageContainer header={{ title: true }}>
-        <div style={{ padding: 16, background: 'transparent' }}>
-          {children}
-        </div>
-      </PageContainer>
-    </ProLayout>
-  );
-};
+const CustomLayout = ({ children }: ICustomLayoutProps) => (
+  <ProLayout
+    logo={logo}
+    title="DSS"
+    style={{ minHeight: '100vh' }}
+    fixSiderbar
+    menu={{
+      request: async () => loopMenuItem(defaultMenus),
+    }}
+    route={{ routes: defaultMenus }}
+    menuItemRender={renderMenuItem}
+    subMenuItemRender={subMenuItemRender}
+    // eslint-disable-next-line
+    menuFooterRender={(props) => <CustomFooterMenu {...props} />}
+  >
+    <PageContainer header={{ title: true }}>
+      <div style={{ padding: 16, background: 'transparent' }}>
+        {children}
+      </div>
+    </PageContainer>
+  </ProLayout>
+);
 
 export { CustomLayout };
