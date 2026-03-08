@@ -1,10 +1,4 @@
 import React from 'react';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 
@@ -16,19 +10,9 @@ import { DSAAnalysis } from './component/DSAAnalysis';
 
 const App = () => (
   <ConfigProvider locale={enUS}>
-    <BrowserRouter basename="/DSS">
-      <CustomLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/analysis" replace />} />
-          <Route path="/analysis" element={<DSAAnalysis />} />
-          <Route path="/docs" element={<Navigate to="/docs/" replace />} />
-          <Route
-            path="*"
-            element={<Navigate to="/analysis" replace />}
-          />
-        </Routes>
-      </CustomLayout>
-    </BrowserRouter>
+    <CustomLayout>
+      <DSAAnalysis />
+    </CustomLayout>
   </ConfigProvider>
 );
 
