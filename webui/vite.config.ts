@@ -29,7 +29,7 @@ export default defineConfig({
   build: {
     outDir: './build',
   },
-  base: './DSS/',
+  base: './',
   plugins: [
     react(),
     VitePWA({
