@@ -46,6 +46,10 @@ jobs:
           echo "Building backend Docker image..."
           docker build -f Dockerfile -t dss-api:latest .
           
+          # Load the image into containerd (k3s uses containerd, not Docker)
+          echo "Loading image into containerd..."
+          docker save dss-api:latest | sudo ctr -n k8s.io images import -
+          
           # Create namespace first if it doesn't exist
           kubectl apply -f k8s/namespace.yaml
           
