@@ -73,7 +73,7 @@ spec:
   - name: http
     port: 3010
     targetPort: 3010
-    nodePort: 30000
+    nodePort: 30001
     protocol: TCP
 
 ---
