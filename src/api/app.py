@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="DSS - DNA Sequence Similarity API",
         description="REST API for DNA sequence similarity analysis with multiple algorithms",
-        version="2.0.0",
+        version="1.0.0",
     )
 
     # Add CORS middleware
@@ -52,7 +52,7 @@ def create_app() -> FastAPI:
             status="success",
             message="DSS API is running",
             data={
-                "version": "2.0.0",
+                "version": "1.0.0",
                 "available_methods": analysis_service.get_available_methods(),
             },
         )

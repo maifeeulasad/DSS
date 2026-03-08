@@ -25,7 +25,7 @@ from src.utils import app_config, resource_path
 # from src.ui import AnalysisWindow, MainWindow, create_application, main
 # This allows the API server to run without PyQt6/GUI dependencies
 
-__version__ = "2.0.0"
+__version__ = "1.0.0"
 __author__ = "BAU Research Team"
 __description__ = "DNA Sequence Similarity Analysis with Plugin Architecture"
 
