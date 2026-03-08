@@ -18,10 +18,12 @@ from src.core import (AnalysisResult, AnalysisService, ISequenceLoader,
                       SequenceData, plugin_registry)
 # Plugins
 from src.plugins import CGRProcessor, DPTMProcessor, PTMProcessor, TMProcessor
-# UI components
-from src.ui import AnalysisWindow, MainWindow, create_application, main
 # Utilities
 from src.utils import app_config, resource_path
+
+# UI components are imported only when needed (see main.py)
+# from src.ui import AnalysisWindow, MainWindow, create_application, main
+# This allows the API server to run without PyQt6/GUI dependencies
 
 __version__ = "2.0.0"
 __author__ = "BAU Research Team"
@@ -37,11 +39,6 @@ __all__ = [
     "SequenceData",
     "AnalysisResult",
     "MethodConfig",
-    # UI
-    "MainWindow",
-    "AnalysisWindow",
-    "create_application",
-    "main",
     # Plugins
     "DPTMProcessor",
     "CGRProcessor",
@@ -55,6 +52,7 @@ __all__ = [
     # Utils
     "app_config",
     "resource_path",
+    # UI components available via: from src.ui import MainWindow, AnalysisWindow, etc.
 ]
 
 # Initialize the phylo directory on import
