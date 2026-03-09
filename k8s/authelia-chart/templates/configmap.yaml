@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "authelia.fullname" . }}-config
+  labels:
+    {{- include "authelia.labels" . | nindent 4 }}
+data:
+  configuration.yml: |
+    server:
+      host: 0.0.0.0
+      port: 9091
+
+    log:
+      level: debug
+
+    jwt_secret: {{ .Values.authelia.jwtSecret | quote }}
+
+    session:
+      name: {{ .Values.authelia.sessionName }}
+      domain: {{ .Values.authelia.sessionDomain }}
+      sam_attribute: lax
+      expiration: 1h
+      inactivity: 5m
+
+    authentication_backend:
+      file:
+        path: /config/users_database.yml
+
+    access_control:
+      default_policy: deny
+      rules:
+        - domain: "*.{{ .Values.authelia.sessionDomain }}"
+          policy: one_factor
+
+    storage:
+      local:
+        path: /config/db.sqlite3
+
+    notifier:
+      filesystem:
+        filename: /config/notification.txt
+
+  users_database.yml: |
+    users:
+      {{ .Values.authelia.adminUsername }}:
+        displayname: Administrator
+        password: "{{ .Values.authelia.adminPassword }}"
+        email: admin@{{ .Values.authelia.sessionDomain }}
+        groups:
+          - admins
