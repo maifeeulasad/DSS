@@ -1,0 +1,45 @@
+replicaCount: 1
+
+image:
+  repository: authelia/authelia
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9091
+  targetPort: 9091
+
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClassName: local-path  # k3s default storage class
+  mountPath: /config
+
+# Minimal Authelia config
+authelia:
+  # JWT secret for session tokens
+  jwtSecret: "CHANGE_ME_JWT_SECRET_MIN_32_CHARS_LONG"
+  
+  # Session config
+  sessionName: "authelia_session"
+  sessionDomain: "example.com"  # Change this to your domain
+  
+  # Default admin user (change these!)
+  adminUsername: "admin"
+  adminPassword: "CHANGE_ME_STRONG_PASSWORD"
+  
+  # TOTP issuer
+  totpIssuer: "Authelia"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 250m
+    memory: 128Mi
+
+nodeSelector: {}
+affinity: {}
+tolerations: []
