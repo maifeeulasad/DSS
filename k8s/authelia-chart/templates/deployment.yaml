@@ -26,9 +26,17 @@ spec:
           env:
             - name: TZ
               value: UTC
+            - name: AUTHELIA_CONFIG_FILE
+              value: /config/configuration.yml
           volumeMounts:
             - name: config
               mountPath: {{ .Values.persistence.mountPath }}
+            - name: config-file
+              mountPath: /config/configuration.yml
+              subPath: configuration.yml
+            - name: config-file
+              mountPath: /config/users_database.yml
+              subPath: users_database.yml
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
@@ -55,6 +63,14 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: config-file
+          configMap:
+            name: {{ include "authelia.fullname" . }}-config
+            items:
+              - key: configuration.yml
+                path: configuration.yml
+              - key: users_database.yml
+                path: users_database.yml
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
