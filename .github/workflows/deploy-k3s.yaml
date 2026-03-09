@@ -58,10 +58,12 @@ jobs:
           # Create namespace first if it doesn't exist
           kubectl apply -f k8s/namespace.yaml
           
-          # Deploy Authelia using Helm (k3s has helm built-in)
+          # Deploy Authelia using Helm
           echo "Deploying Authelia authentication server..."
+          helm repo add authelia https://charts.authelia.com 2>/dev/null || true
+          helm repo update >/dev/null 2>&1 || true
           
-          k3s helm upgrade --install authelia k8s/authelia-chart/ \
+          helm upgrade --install authelia k8s/authelia-chart/ \
             -n dss \
             --set authelia.jwtSecret="${{ secrets.AUTHELIA_JWT_SECRET }}" \
             --set authelia.sessionDomain="${{ secrets.AUTHELIA_SESSION_DOMAIN }}" \
