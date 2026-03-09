@@ -13,24 +13,15 @@ service:
 persistence:
   enabled: true
   size: 2Gi
-  storageClassName: local-path  # k3s default storage class
+  storageClassName: local-path
   mountPath: /config
 
-# Minimal Authelia config
+# ALL VALUES LOADED FROM GITHUB SECRETS
 authelia:
-  # JWT secret for session tokens
-  jwtSecret: "CHANGE_ME_JWT_SECRET_MIN_32_CHARS_LONG"
-  
-  # Session config
-  sessionName: "authelia_session"
-  sessionDomain: "example.com"  # Change this to your domain
-  
-  # Default admin user (change these!)
-  adminUsername: "admin"
-  adminPassword: "CHANGE_ME_STRONG_PASSWORD"
-  
-  # TOTP issuer
-  totpIssuer: "Authelia"
+  jwtSecret: ""  # Set via --set authelia.jwtSecret in helm
+  sessionDomain: ""  # Set via --set authelia.sessionDomain in helm
+  adminUsername: ""  # Set via --set authelia.adminUsername in helm
+  adminPassword: ""  # Set via --set authelia.adminPassword in helm
 
 resources:
   limits:
