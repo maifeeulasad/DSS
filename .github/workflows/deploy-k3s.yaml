@@ -74,7 +74,11 @@ jobs:
             --set authelia.adminUsername="${{ secrets.AUTHELIA_ADMIN_USERNAME }}" \
             --set persistence.enabled=true \
             --set persistence.size=2Gi \
-            --wait --timeout=5m
+            --timeout=10m
+          
+          # Wait for authelia to be ready
+          echo "Waiting for Authelia to be ready..."
+          kubectl rollout status deployment/authelia -n dss --timeout=10m || true
           
           # Deploy using kubectl
           echo "Deploying backend to k3s cluster..."
@@ -90,7 +94,6 @@ jobs:
           echo "Waiting for deployments to be ready..."
           kubectl rollout status deployment/dss-api -n dss --timeout=5m || true
           kubectl rollout status deployment/dss-ui -n dss --timeout=5m || true
-          kubectl rollout status deployment/authelia -n dss --timeout=5m || true
           
           # Show running services
           echo "Services status:"
@@ -101,9 +104,9 @@ jobs:
           echo "Cleaning up dangling Docker images..."
           docker image prune -f --filter "until=1h" || true
 
-          # Force restart of services to ensure new images are used
-          kubectl delete pod -n dss -l app=dss-ui
-          kubectl delete pod -n dss -l app=dss-api
+          # Force restart of services to ensure new images are used (skip authelia as it will restart on config change)
+          kubectl delete pod -n dss -l app=dss-ui 2>/dev/null || true
+          kubectl delete pod -n dss -l app=dss-api 2>/dev/null || true
           sleep 3
 
           EOF
@@ -115,7 +118,6 @@ jobs:
           
           PROJECT_DIR="/home/${{ secrets.K3S_SERVER_SSH_USERNAME }}/DSS"
           cd $PROJECT_DIR
-          services status
           echo "=== Services Status ==="
           kubectl get pods -n dss
           kubectl get svc -n dss
@@ -160,12 +162,17 @@ jobs:
           
           # Verify Authelia is responding
           echo "=== Authelia Health Check ==="
+          
+          # Wait for authelia pods to be ready
+          echo "Waiting for Authelia pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=authelia -n dss --timeout=10m 2>/dev/null || true
+          
           kubectl port-forward -n dss svc/authelia-service 9091:9091 > /dev/null 2>&1 &
           AUTH_PF_PID=$!
-          sleep 2
+          sleep 3
           
           # Check Authelia health with timeout
-          if curl -s --max-time 5 http://localhost:9091/api/health > /tmp/authelia_response.json 2>/dev/null; then
+          if curl -s --max-time 10 http://localhost:9091/api/health > /tmp/authelia_response.json 2>/dev/null; then
             echo "✓ Authelia is responding"
             echo "Response:"
             cat /tmp/authelia_response.json
