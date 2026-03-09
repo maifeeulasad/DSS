@@ -81,7 +81,12 @@ jobs:
           # Cleanup dangling Docker images
           echo "Cleaning up dangling Docker images..."
           docker image prune -f --filter "until=1h" || true
-          
+
+          # Force restart of services to ensure new images are used
+          kubectl delete pod -n dss -l app=dss-ui
+          kubectl delete pod -n dss -l app=dss-api
+          sleep 3
+
           EOF
 
       - name: Verify deployment
