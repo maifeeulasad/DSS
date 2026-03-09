@@ -7,23 +7,24 @@ metadata:
 data:
   configuration.yml: |
     server:
-      host: 0.0.0.0
-      port: 9091
+      address: tcp://0.0.0.0:9091
 
     log:
       level: info
 
-    jwt_secret: {{ .Values.authelia.jwtSecret | quote }}
+    identity_validation:
+      reset_password:
+        jwt_secret: {{ .Values.authelia.jwtSecret | quote }}
 
     session:
       name: authelia_session
-      domain: {{ .Values.authelia.sessionDomain | quote }}
       same_site: lax
       expiration: 1h
       inactivity: 5m
       cookies:
-        - domain: {{ .Values.authelia.sessionDomain | quote }}
-          authelia_url: http://{{ .Values.authelia.sessionDomain | quote }}:9091
+        - name: authelia_session
+          domain: {{ .Values.authelia.sessionDomain }}
+          authelia_url: http://{{ .Values.authelia.sessionDomain }}:9091
 
     authentication_backend:
       file:
