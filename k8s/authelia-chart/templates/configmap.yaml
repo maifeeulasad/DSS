@@ -11,28 +11,32 @@ data:
       port: 9091
 
     log:
-      level: debug
+      level: info
 
     jwt_secret: {{ .Values.authelia.jwtSecret | quote }}
 
     session:
-      name: {{ .Values.authelia.sessionName }}
-      domain: {{ .Values.authelia.sessionDomain }}
-      sam_attribute: lax
+      name: authelia_session
+      domain: {{ .Values.authelia.sessionDomain | quote }}
+      same_site: lax
       expiration: 1h
       inactivity: 5m
+      cookies:
+        - domain: {{ .Values.authelia.sessionDomain | quote }}
+          authelia_url: http://{{ .Values.authelia.sessionDomain | quote }}:9091
 
     authentication_backend:
       file:
         path: /config/users_database.yml
 
     access_control:
-      default_policy: deny
+      default_policy: one_factor
       rules:
-        - domain: "*.{{ .Values.authelia.sessionDomain }}"
+        - domain: "*"
           policy: one_factor
 
     storage:
+      encryption_key: {{ .Values.authelia.jwtSecret | quote }}
       local:
         path: /config/db.sqlite3
 
@@ -45,6 +49,6 @@ data:
       {{ .Values.authelia.adminUsername }}:
         displayname: Administrator
         password: "{{ .Values.authelia.adminPassword }}"
-        email: admin@{{ .Values.authelia.sessionDomain }}
+        email: admin@localhost
         groups:
           - admins
