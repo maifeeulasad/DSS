@@ -26,3 +26,11 @@ newgrp docker
 ```sh
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
+
+# Key Generation
+
+```sh
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/k3s_deploy_key
+cat ~/.ssh/k3s_deploy_key.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
