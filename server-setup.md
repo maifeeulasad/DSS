@@ -20,3 +20,9 @@ docker run hello-world
 sudo usermod -aG docker $USER
 newgrp docker
 ```
+
+# Helm
+
+```sh
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
