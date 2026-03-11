@@ -73,12 +73,17 @@ jobs:
 
           kubectl create secret generic dss-api-secret \
             --from-literal=DSS_SECRET_KEY="${{ secrets.DSS_SECRET_KEY }}" \
-            --from-literal=DSS_DB_PATH="${{ secrets.DSS_DB_PATH }}" \
+            -n dss \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic dss-mongo-secret \
+            --from-literal=DSS_MONGO_USER="${{ secrets.DSS_MONGO_USER }}" \
+            --from-literal=DSS_MONGO_PASS="${{ secrets.DSS_MONGO_PASS }}" \
             -n dss \
             --dry-run=client -o yaml | kubectl apply -f -
 
           echo "Deploying MongoDB to k3s cluster..."
-          DSS_MONGO_USER="${{ secrets.DSS_MONGO_USER }}" DSS_MONGO_PASS="${{ secrets.DSS_MONGO_PASS }}" envsubst < k8s/mongodb.yaml | kubectl apply -f -
+          kubectl apply -f k8s/mongodb.yaml
           kubectl rollout status deployment/mongodb -n dss --timeout=5m
 
           echo "Deploying backend to k3s cluster..."
