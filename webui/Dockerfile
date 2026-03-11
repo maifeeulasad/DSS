@@ -12,6 +12,8 @@ RUN npm i -g pnpm
 
 RUN pnpm i
 
+RUN npx puppeteer browsers install chrome
+
 RUN pnpm build
 
 EXPOSE 4173
