@@ -66,7 +66,7 @@ jobs:
           docker save dss-api:latest | sudo ctr -n k8s.io images import -
           docker save dss-ui:latest | sudo ctr -n k8s.io images import -
 
-          kubectl delete namespace dss --ignore-not-found --wait=true
+          # kubectl delete namespace dss --ignore-not-found --wait=true
           kubectl apply -f k8s/namespace.yaml
 
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml

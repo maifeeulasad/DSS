@@ -67,7 +67,7 @@ docker save dss-api:latest | sudo ctr -n k8s.io images import -
 docker save dss-ui:latest | sudo ctr -n k8s.io images import -
 
 # Full cleanup of namespace
-kubectl delete namespace dss --ignore-not-found --wait=true
+# kubectl delete namespace dss --ignore-not-found --wait=true
 
 # Create namespace first if it doesn't exist
 kubectl apply -f k8s/namespace.yaml
