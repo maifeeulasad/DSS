@@ -1,4 +1,7 @@
 # Setup Environment
+
+# k3s Setup
+
 ```sh
 curl -sfL https://get.k3s.io | sh -
 ```
