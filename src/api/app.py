@@ -3,10 +3,14 @@ FastAPI application for DSS REST API
 """
 
 import base64
+import json
 import logging
 import os
+import threading
 import time
 import traceback
+import urllib.error
+import urllib.request
 from typing import Any, Dict, List
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
@@ -294,6 +298,47 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="Invalid email or password.")
         token = create_access_token(str(user["_id"]), user["email"])
         return TokenResponse(access_token=token)
+
+    # -----------------------------------------------------------------------
+    # Root-user seeding
+    # -----------------------------------------------------------------------
+
+    @app.on_event("startup")
+    async def _seed_root_user() -> None:
+        """Spawn a fire-and-forget daemon thread that creates the root account 2 s after boot."""
+        root_user = os.environ.get("DSS_ROOT_USER")
+        root_password = os.environ.get("DSS_ROOT_PASSWORD")
+        if not root_user or not root_password:
+            return
+
+        _seed_logger = logging.getLogger("api.seed")
+
+        def _run() -> None:
+            time.sleep(2)
+            payload = json.dumps({
+                "name": root_user,
+                "email": f"{root_user}@dss.com",
+                "password": root_password,
+                "institute": "",
+            }).encode()
+            try:
+                req = urllib.request.Request(
+                    "http://localhost:8000/auth/register",
+                    data=payload,
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    _seed_logger.info("Root user '%s' created (status %d).", root_user, resp.status)
+            except urllib.error.HTTPError as exc:
+                if exc.code == 409:
+                    _seed_logger.info("Root user '%s' already exists — skipping.", root_user)
+                else:
+                    _seed_logger.warning("Root user creation failed (HTTP %d): %s", exc.code, exc)
+            except Exception as exc:  # noqa: BLE001
+                _seed_logger.warning("Root user creation failed: %s", exc)
+
+        threading.Thread(target=_run, daemon=True, name="seed-root-user").start()
 
     return app
 
