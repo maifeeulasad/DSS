@@ -1,13 +1,62 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tanstack/react-router';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import RootLayout from './routes/__root';
+
+// Import all route components  
+import Home from './routes/index';
+import Login from './routes/login';
+import App from './App';
+
+// Create root route
+const rootRoute = createRootRoute({
+  component: RootLayout,
+})
+
+// Create child routes
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Home,
+})
+
+const analysisRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/analysis',
+  component: App,
+})
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: Login,
+})
+
+// Create route tree
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  analysisRoute,
+  loginRoute,
+])
+
+// Create router
+const router = createRouter({
+  routeTree,
+})
+
+// Register router for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>,
 );
 
