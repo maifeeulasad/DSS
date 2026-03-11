@@ -1,12 +1,54 @@
 /* eslint-disable */
-import { defineConfig, type PluginOption } from 'vite';
+import { defineConfig, preview, type PluginOption } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import react from '@vitejs/plugin-react-swc';
 import ViteVisualizer from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa'
 import { VitePluginRadar } from 'vite-plugin-radar';
+import { mkdirSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 
 const maxAgeSeconds = 365 * 24 * 60 * 60; // Cache for 1 year
+
+// Routes to prerender
+const PRERENDER_ROUTES = ['/', '/login', '/analysis'];
+
+const prerenderPlugin = (): PluginOption => ({
+  name: 'prerender',
+  apply: 'build',
+  async closeBundle() {
+    const outDir = './build';
+    const port = 4174;
+
+    console.log('\n[prerender] Starting preview server...');
+    const server = await preview({ build: { outDir }, preview: { port } });
+
+    const { default: puppeteer } = await import('puppeteer');
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const page = await browser.newPage();
+
+    for (const route of PRERENDER_ROUTES) {
+      await page.goto(`http://localhost:${port}${route}`, { waitUntil: 'networkidle0' });
+      let html = await page.content();
+
+      // Fix relative asset paths for nested routes (base is './')
+      const depth = route.split('/').filter(Boolean).length;
+      if (depth > 0) {
+        const prefix = '../'.repeat(depth);
+        html = html.replace(/(['"])\.\/(assets\/)/g, `$1${prefix}$2`);
+      }
+
+      const outPath = route === '/' ? join(outDir, 'index.html') : join(outDir, route, 'index.html');
+      mkdirSync(dirname(outPath), { recursive: true });
+      writeFileSync(outPath, html, 'utf-8');
+      console.log(`[prerender] ✓ ${route} → ${outPath}`);
+    }
+
+    await browser.close();
+    server.httpServer.close();
+    console.log('[prerender] Done.');
+  },
+});
 
 // https://stackoverflow.com/a/15802301
 const headCommitHash = (): string | undefined => {
@@ -83,5 +125,6 @@ export default defineConfig({
       filename: './build/report-rollup-plugin-visualizer.html',
       brotliSize: true,
     }) as PluginOption,
+    prerenderPlugin(),
   ],
 });
