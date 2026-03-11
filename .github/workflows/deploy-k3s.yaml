@@ -61,6 +61,13 @@ jobs:
           # Set KUBECONFIG to point to k3s config
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           
+          # Upsert k8s Secret for API env vars from GitHub secrets
+          kubectl create secret generic dss-api-secret \
+            --from-literal=DSS_SECRET_KEY="${{ secrets.DSS_SECRET_KEY }}" \
+            --from-literal=DSS_DB_PATH="${{ secrets.DSS_DB_PATH }}" \
+            -n dss \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
           # Deploy Authelia using Helm
           echo "Deploying Authelia authentication server..."
           helm repo add authelia https://charts.authelia.com 2>/dev/null || true
