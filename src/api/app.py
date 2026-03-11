@@ -18,11 +18,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user, create_access_token,
-                          create_user, get_activity_logs_collection, require_auth)
-from src.api.models import (AnalysisRequest, AnalysisResponse, MethodInfoResponse,
-                            SequenceDataResponse, StatusResponse, TokenResponse,
-                            UserLogin, UserRegister)
+from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user,
+                          create_access_token, create_user,
+                          get_activity_logs_collection, require_auth)
+from src.api.models import (AnalysisRequest, AnalysisResponse,
+                            MethodInfoResponse, SequenceDataResponse,
+                            StatusResponse, TokenResponse, UserLogin,
+                            UserRegister)
 from src.api.sequence_loader import InMemorySequenceLoader
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import MethodConfig
@@ -76,7 +78,8 @@ def create_app() -> FastAPI:
         auth_header = request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             try:
-                from jose import jwt as _jwt  # local import to avoid circular deps
+                from jose import \
+                    jwt as _jwt  # local import to avoid circular deps
                 payload = _jwt.decode(auth_header[7:], SECRET_KEY, algorithms=[ALGORITHM])
                 identity = payload.get("sub", "unknown")
             except Exception:
