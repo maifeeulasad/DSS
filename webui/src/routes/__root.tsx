@@ -1,7 +1,19 @@
 /// <reference types="vite/client" />
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
-import React from 'react'
-import '../index.css'
+import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
+import '../index.css';
+
+// eslint-disable-next-line react/function-component-definition
+export const RootLayout = () => (
+  <html lang="en">
+    <head>
+      <HeadContent />
+    </head>
+    <body>
+      <Outlet />
+      <Scripts />
+    </body>
+  </html>
+);
 
 export const Route = createRootRoute({
   head: () => ({
@@ -18,18 +30,4 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootLayout,
-})
-
-export default function RootLayout() {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <Outlet />
-        <Scripts />
-      </body>
-    </html>
-  )
-}
+});
