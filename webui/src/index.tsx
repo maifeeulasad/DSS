@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tanstack/react-router';
+import { RouterProvider, createRouter, createRootRoute, createRoute, redirect } from '@tanstack/react-router';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import RootLayout from './routes/__root';
+import { AuthToken } from './services/dssApi';
 
 // Import all route components  
 import Home from './routes/index';
@@ -25,6 +26,11 @@ const indexRoute = createRoute({
 const analysisRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/analysis',
+  beforeLoad: () => {
+    if (!AuthToken.isPresent()) {
+      throw redirect({ to: '/login' });
+    }
+  },
   component: App,
 })
 
