@@ -3,6 +3,8 @@ FastAPI application for DSS REST API
 """
 
 import base64
+import logging
+import os
 import time
 import traceback
 from typing import Any, Dict, List
@@ -12,7 +14,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.auth import authenticate_user, create_access_token, create_user, require_auth
+from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user, create_access_token,
+                          create_user, require_auth)
 from src.api.models import (AnalysisRequest, AnalysisResponse, MethodInfoResponse,
                             SequenceDataResponse, StatusResponse, TokenResponse,
                             UserLogin, UserRegister)
@@ -20,6 +23,12 @@ from src.api.sequence_loader import InMemorySequenceLoader
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import MethodConfig
 from src.core.plugin_loader import plugin_loader
+
+# Feature flag: set DSS_ENABLE_API_ACTIVITY_LOG=false to disable activity logging
+ENABLE_API_ACTIVITY_LOG: bool = os.environ.get("DSS_ENABLE_API_ACTIVITY_LOG", "true").lower() != "false"
+
+_activity_logger = logging.getLogger("api.activity")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
 
 def create_app() -> FastAPI:
@@ -42,6 +51,42 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Activity log middleware — logs every request with auth status, identity, and client IP
+    @app.middleware("http")
+    async def log_api_activity(request, call_next):
+        """Log API call activity: auth status, caller identity, and client IP."""
+        if not ENABLE_API_ACTIVITY_LOG:
+            return await call_next(request)
+
+        # Resolve client IP (honour X-Forwarded-For from a reverse proxy)
+        forwarded_for = request.headers.get("X-Forwarded-For")
+        client_ip = (
+            forwarded_for.split(",")[0].strip()
+            if forwarded_for
+            else (request.client.host if request.client else "unknown")
+        )
+
+        # Try to identify the caller from the Bearer JWT
+        identity = "anonymous"
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            try:
+                from jose import jwt as _jwt  # local import to avoid circular deps
+                payload = _jwt.decode(auth_header[7:], SECRET_KEY, algorithms=[ALGORITHM])
+                identity = payload.get("sub", "unknown")
+            except Exception:
+                identity = "invalid_token"
+
+        response = await call_next(request)
+
+        auth_status = "UNAUTHORIZED" if response.status_code == 401 else "AUTHORIZED"
+        _activity_logger.info(
+            "[ACTIVITY] %s | %s %s | user=%s | ip=%s | status=%d",
+            auth_status, request.method, request.url.path,
+            identity, client_ip, response.status_code,
+        )
+        return response
 
     # Add security headers middleware for HTTPS enforcement and mixed content prevention
     @app.middleware("http")
