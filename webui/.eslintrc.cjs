@@ -30,6 +30,7 @@ module.exports = {
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
     // React and JSX
+    'react/react-in-jsx-scope': 'off', // Not needed with React 18 automatic JSX transform
     'react/jsx-filename-extension': [1, { extensions: ['.tsx'] }],
     'react/jsx-one-expression-per-line': 'off',
     'react/function-component-definition': [2, { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' }],
