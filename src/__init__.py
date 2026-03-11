@@ -10,8 +10,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Adapters
 from src.adapters import BioPythonSequenceLoader, MatplotlibTreeVisualizer
-# API components
-from src.api import create_app
 # Core components
 from src.core import (AnalysisResult, AnalysisService, ISequenceLoader,
                       ISequenceProcessor, ITreeVisualizer, MethodConfig,
@@ -47,8 +45,6 @@ __all__ = [
     # Adapters
     "BioPythonSequenceLoader",
     "MatplotlibTreeVisualizer",
-    # API
-    "create_app",
     # Utils
     "app_config",
     "resource_path",
