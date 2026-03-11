@@ -1,18 +1,15 @@
 // Route: /login
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import './login.css';
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { DSSApiClient } from '../services/dssApi';
-
-export const Route = createFileRoute('/login')({ component: Login })
 
 enum LoginMode {
   SIGN_IN = 'sign-in',
   SIGN_UP = 'sign-up',
 }
 
-export default function Login() {
+export const Login = () => {
   const [mode, setMode] = useState<LoginMode>(LoginMode.SIGN_IN);
   const navigate = useNavigate();
 
@@ -108,6 +105,7 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
+export const Route = createFileRoute('/login')({ component: Login });
