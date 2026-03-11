@@ -8,6 +8,8 @@ COPY . .
 
 RUN npm i -g pnpm
 
+ENV CI=true
+
 RUN pnpm i
 
 RUN pnpm build
