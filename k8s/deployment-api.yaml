@@ -30,6 +30,16 @@ spec:
         env:
         - name: PYTHONUNBUFFERED
           value: "1"
+        - name: DSS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: dss-api-secret
+              key: DSS_SECRET_KEY
+        - name: DSS_DB_PATH
+          valueFrom:
+            secretKeyRef:
+              name: dss-api-secret
+              key: DSS_DB_PATH
         
         resources:
           requests:
