@@ -24,7 +24,10 @@ const prerenderPlugin = (): PluginOption => ({
     const server = await preview({ build: { outDir }, preview: { port } });
 
     const { default: puppeteer } = await import('puppeteer');
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
 
     for (const route of PRERENDER_ROUTES) {
