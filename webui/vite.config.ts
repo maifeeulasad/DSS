@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react-swc';
 import ViteVisualizer from 'rollup-plugin-visualizer';
 import { VitePWA } from 'vite-plugin-pwa'
 import { VitePluginRadar } from 'vite-plugin-radar';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 
 const maxAgeSeconds = 365 * 24 * 60 * 60; // Cache for 1 year
@@ -24,8 +24,12 @@ const prerenderPlugin = (): PluginOption => ({
     const server = await preview({ build: { outDir }, preview: { port } });
 
     const { default: puppeteer } = await import('puppeteer');
+    // Prefer env var (Docker), then system installs (GitHub CI runner), then puppeteer-managed
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH
+      || ['/usr/bin/google-chrome-stable', '/usr/bin/google-chrome', '/usr/bin/chromium-browser', '/usr/bin/chromium']
+          .find(p => existsSync(p));
     const browser = await puppeteer.launch({
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+      executablePath,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
