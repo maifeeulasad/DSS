@@ -5,7 +5,29 @@ Pydantic models for API request/response schemas
 import base64
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
+
+
+# ---------------------------------------------------------------------------
+# Auth models
+# ---------------------------------------------------------------------------
+
+
+class UserRegister(BaseModel):
+    name: str
+    email: EmailStr
+    institute: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
 
 class SequenceFileModel(BaseModel):
