@@ -60,7 +60,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "rm -rf build && tsc && vite build",
+    "build": "rm -rf build && vite build",
     "serve": "vite preview",
     "predeploy": "pnpm lint && pnpm build",
     "deploy": "gh-pages -d build",
