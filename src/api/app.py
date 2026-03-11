@@ -7,14 +7,15 @@ import time
 import traceback
 from typing import Any, Dict, List
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.models import (AnalysisRequest, AnalysisResponse,
-                            MethodInfoResponse, SequenceDataResponse,
-                            StatusResponse)
+from src.api.auth import authenticate_user, create_access_token, create_user, require_auth
+from src.api.models import (AnalysisRequest, AnalysisResponse, MethodInfoResponse,
+                            SequenceDataResponse, StatusResponse, TokenResponse,
+                            UserLogin, UserRegister)
 from src.api.sequence_loader import InMemorySequenceLoader
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import MethodConfig
@@ -105,7 +106,7 @@ def create_app() -> FastAPI:
         )
 
     @app.post("/analyze", response_model=AnalysisResponse)
-    async def analyze_sequences(request: AnalysisRequest):
+    async def analyze_sequences(request: AnalysisRequest, _: dict = Depends(require_auth)):
         """Analyze DNA sequences using the specified method"""
         try:
             start_time = time.time()
@@ -173,7 +174,7 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
     @app.post("/upload", response_model=List[SequenceDataResponse])
-    async def upload_and_parse(files: List[UploadFile] = File(...)):
+    async def upload_and_parse(files: List[UploadFile] = File(...), _: dict = Depends(require_auth)):
         """Upload and parse sequence files to preview sequences"""
         try:
             files_data = []
@@ -210,6 +211,28 @@ def create_app() -> FastAPI:
             message="API is operational",
             data={"loaded_plugins": len(analysis_service.get_available_methods())},
         )
+
+    # -----------------------------------------------------------------------
+    # Auth routes
+    # -----------------------------------------------------------------------
+
+    @app.post("/auth/register", response_model=StatusResponse, status_code=201)
+    async def register(body: UserRegister):
+        """Register a new user account."""
+        try:
+            create_user(body.name, body.email, body.institute, body.password)
+            return StatusResponse(status="success", message="Account created.")
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail=str(exc))
+
+    @app.post("/auth/login", response_model=TokenResponse)
+    async def login(body: UserLogin):
+        """Authenticate and receive a JWT access token."""
+        user = authenticate_user(body.email, body.password)
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+        token = create_access_token(user["id"], user["email"])
+        return TokenResponse(access_token=token)
 
     return app
 
