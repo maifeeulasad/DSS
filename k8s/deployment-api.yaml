@@ -45,6 +45,16 @@ spec:
             secretKeyRef:
               name: dss-mongo-secret
               key: DSS_MONGO_PASS
+        - name: DSS_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: dss-api-secret
+              key: DSS_ROOT_USER
+        - name: DSS_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dss-api-secret
+              key: DSS_ROOT_PASSWORD
         
         resources:
           requests:
