@@ -15,7 +15,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
 from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user, create_access_token,
-                          create_user, require_auth)
+                          create_user, get_activity_logs_collection, require_auth)
 from src.api.models import (AnalysisRequest, AnalysisResponse, MethodInfoResponse,
                             SequenceDataResponse, StatusResponse, TokenResponse,
                             UserLogin, UserRegister)
@@ -86,6 +86,22 @@ def create_app() -> FastAPI:
             auth_status, request.method, request.url.path,
             identity, client_ip, response.status_code,
         )
+
+        # Persist to MongoDB (best-effort; never block the response)
+        try:
+            from datetime import datetime, timezone
+            get_activity_logs_collection().insert_one({
+                "timestamp": datetime.now(timezone.utc),
+                "auth_status": auth_status,
+                "method": request.method,
+                "path": request.url.path,
+                "user": identity,
+                "client_ip": client_ip,
+                "status_code": response.status_code,
+            })
+        except Exception as _exc:  # noqa: BLE001
+            _activity_logger.warning("[ACTIVITY] Failed to persist log entry: %s", _exc)
+
         return response
 
     # Add security headers middleware for HTTPS enforcement and mixed content prevention
