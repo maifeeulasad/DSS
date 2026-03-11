@@ -44,11 +44,11 @@ jobs:
           
           # Build backend Docker image
           echo "Building backend Docker image..."
-          docker build -f Dockerfile -t dss-api:latest .
+          docker build --no-cache -f Dockerfile -t dss-api:latest .
           
           # Build frontend Docker image
           echo "Building frontend Docker image..."
-          docker build -f webui/Dockerfile -t dss-ui:latest ./webui
+          docker build --no-cache -f webui/Dockerfile -t dss-ui:latest ./webui
           
           # Load the images into containerd (k3s uses containerd, not Docker)
           echo "Loading images into containerd..."
@@ -92,9 +92,13 @@ jobs:
           echo "Cleaning up dangling Docker images..."
           docker image prune -f --filter "until=1h" || true
 
-          # Force restart of services to ensure new images are used (skip authelia as it will restart on config change)
+          # Force restart of services to ensure new images are used
           kubectl delete pod -n dss -l app=dss-ui 2>/dev/null || true
           kubectl delete pod -n dss -l app=dss-api 2>/dev/null || true
+          
+          # Wait for fresh pods to come up
+          kubectl rollout status deployment/dss-api -n dss --timeout=5m
+          kubectl rollout status deployment/dss-ui -n dss --timeout=5m
           sleep 3
 
           EOF
