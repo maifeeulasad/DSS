@@ -1,9 +1,7 @@
 """
-Auth utilities: SQLite user store, bcrypt password hashing, JWT tokens.
+Auth utilities: MongoDB user store, bcrypt password hashing, JWT tokens.
 """
 import os
-import sqlite3
-from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -11,6 +9,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from pymongo import MongoClient
+from pymongo.collection import Collection
+from pymongo.errors import DuplicateKeyError
 
 # ---------------------------------------------------------------------------
 # Config (override via environment variables in production)
@@ -18,7 +19,15 @@ from passlib.context import CryptContext
 SECRET_KEY = os.environ.get("DSS_SECRET_KEY")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
-DB_PATH = os.environ.get("DSS_DB_PATH")
+
+_MONGO_USER = os.environ.get("DSS_MONGO_USER")
+_MONGO_PASS = os.environ.get("DSS_MONGO_PASS")
+_MONGO_HOST = os.environ.get("DSS_MONGO_HOST", "mongodb")
+_MONGO_PORT = os.environ.get("DSS_MONGO_PORT", "27017")
+MONGO_URI = os.environ.get(
+    "DSS_MONGO_URI",
+    f"mongodb://{_MONGO_USER}:{_MONGO_PASS}@{_MONGO_HOST}:{_MONGO_PORT}/dssdb?authSource=admin",
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer_scheme = HTTPBearer()
@@ -27,29 +36,16 @@ bearer_scheme = HTTPBearer()
 # Database
 # ---------------------------------------------------------------------------
 
-
-def _init_db(conn: sqlite3.Connection) -> None:
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            name      TEXT    NOT NULL,
-            email     TEXT    NOT NULL UNIQUE,
-            institute TEXT    NOT NULL,
-            password  TEXT    NOT NULL
-        )
-    """)
-    conn.commit()
+_client: Optional[MongoClient] = None
 
 
-@contextmanager
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    _init_db(conn)
-    try:
-        yield conn
-    finally:
-        conn.close()
+def _get_users_collection() -> Collection:
+    global _client
+    if _client is None:
+        _client = MongoClient(MONGO_URI)
+    coll = _client["dssdb"]["users"]
+    coll.create_index("email", unique=True)
+    return coll
 
 
 # ---------------------------------------------------------------------------
@@ -60,25 +56,21 @@ def get_db():
 def create_user(name: str, email: str, institute: str, password: str) -> None:
     """Create a new user. Raises ValueError if email is already taken."""
     hashed = pwd_context.hash(password)
-    with get_db() as conn:
-        try:
-            conn.execute(
-                "INSERT INTO users (name, email, institute, password) VALUES (?, ?, ?, ?)",
-                (name, email, institute, hashed),
-            )
-            conn.commit()
-        except sqlite3.IntegrityError:
-            raise ValueError(f"Email '{email}' is already registered.")
+    coll = _get_users_collection()
+    try:
+        coll.insert_one(
+            {"name": name, "email": email, "institute": institute, "password": hashed}
+        )
+    except DuplicateKeyError:
+        raise ValueError(f"Email '{email}' is already registered.")
 
 
-def authenticate_user(email: str, password: str) -> Optional[sqlite3.Row]:
-    """Return the user row if credentials match, otherwise None."""
-    with get_db() as conn:
-        row = conn.execute(
-            "SELECT * FROM users WHERE email = ?", (email,)
-        ).fetchone()
-    if row and pwd_context.verify(password, row["password"]):
-        return row
+def authenticate_user(email: str, password: str) -> Optional[dict]:
+    """Return the user document if credentials match, otherwise None."""
+    coll = _get_users_collection()
+    user = coll.find_one({"email": email})
+    if user and pwd_context.verify(password, user["password"]):
+        return user
     return None
 
 
@@ -87,7 +79,7 @@ def authenticate_user(email: str, password: str) -> Optional[sqlite3.Row]:
 # ---------------------------------------------------------------------------
 
 
-def create_access_token(user_id: int, email: str) -> str:
+def create_access_token(user_id: str, email: str) -> str:
     payload = {
         "sub": email,
         "uid": user_id,
