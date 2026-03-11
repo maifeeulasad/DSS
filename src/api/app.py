@@ -231,7 +231,7 @@ def create_app() -> FastAPI:
         user = authenticate_user(body.email, body.password)
         if not user:
             raise HTTPException(status_code=401, detail="Invalid email or password.")
-        token = create_access_token(user["id"], user["email"])
+        token = create_access_token(str(user["_id"]), user["email"])
         return TokenResponse(access_token=token)
 
     return app
