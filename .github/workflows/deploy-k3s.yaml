@@ -77,6 +77,10 @@ jobs:
             -n dss \
             --dry-run=client -o yaml | kubectl apply -f -
 
+          echo "Deploying MongoDB to k3s cluster..."
+          DSS_MONGO_USER="${{ secrets.DSS_MONGO_USER }}" DSS_MONGO_PASS="${{ secrets.DSS_MONGO_PASS }}" envsubst < k8s/mongodb.yaml | kubectl apply -f -
+          kubectl rollout status deployment/mongodb -n dss --timeout=5m
+
           echo "Deploying backend to k3s cluster..."
           kubectl apply -f k8s/deployment-api.yaml
           kubectl apply -f k8s/ingress.yaml
@@ -88,6 +92,7 @@ jobs:
 
           kubectl rollout status deployment/dss-api -n dss --timeout=5m || true
           kubectl rollout status deployment/dss-ui -n dss --timeout=5m || true
+          kubectl rollout status deployment/mongodb -n dss --timeout=5m || true
 
           echo "Services status:"
           kubectl get pods -n dss
@@ -97,9 +102,11 @@ jobs:
 
           kubectl delete pod -n dss -l app=dss-ui 2>/dev/null || true
           kubectl delete pod -n dss -l app=dss-api 2>/dev/null || true
+          kubectl delete pod -n dss -l app=mongodb 2>/dev/null || true
 
           kubectl rollout status deployment/dss-api -n dss --timeout=5m
           kubectl rollout status deployment/dss-ui -n dss --timeout=5m
+          kubectl rollout status deployment/mongodb -n dss --timeout=5m
           sleep 3
 
           rm -f dss-api.tar dss-ui.tar
