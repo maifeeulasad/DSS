@@ -1,10 +1,11 @@
-// Static services page route
-// Route: /login (handled in src/index.tsx)
-
+// Route: /login
+import { createFileRoute } from '@tanstack/react-router'
 import './login.css';
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { DSSApiClient } from '../services/dssApi';
+
+export const Route = createFileRoute('/login')({ component: Login })
 
 enum LoginMode {
   SIGN_IN = 'sign-in',
