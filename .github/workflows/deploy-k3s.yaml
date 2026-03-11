@@ -73,6 +73,8 @@ jobs:
 
           kubectl create secret generic dss-api-secret \
             --from-literal=DSS_SECRET_KEY="${{ secrets.DSS_SECRET_KEY }}" \
+            --from-literal=DSS_ROOT_USER="${{ secrets.DSS_ROOT_USER }}" \
+            --from-literal=DSS_ROOT_PASSWORD="${{ secrets.DSS_ROOT_PASSWORD }}" \
             -n dss \
             --dry-run=client -o yaml | kubectl apply -f -
 
