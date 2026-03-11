@@ -48,6 +48,17 @@ def _get_users_collection() -> Collection:
     return coll
 
 
+def get_activity_logs_collection() -> Collection:
+    """Return the 'activity_logs' collection, creating a TTL index on first access."""
+    global _client
+    if _client is None:
+        _client = MongoClient(MONGO_URI)
+    coll = _client["dssdb"]["activity_logs"]
+    # TTL index: automatically purge log entries older than 90 days
+    coll.create_index("timestamp", expireAfterSeconds=60 * 60 * 24 * 90)
+    return coll
+
+
 # ---------------------------------------------------------------------------
 # User operations
 # ---------------------------------------------------------------------------
