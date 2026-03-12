@@ -18,6 +18,7 @@ export const Login = () => {
   const [signInPassword, setSignInPassword] = useState('');
   const [signInError, setSignInError] = useState('');
   const [signInLoading, setSignInLoading] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
 
   // Sign-up state
   const [signUpName, setSignUpName] = useState('');
@@ -27,6 +28,7 @@ export const Login = () => {
   const [signUpError, setSignUpError] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState('');
   const [signUpLoading, setSignUpLoading] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +76,12 @@ export const Login = () => {
               <input type="text" placeholder="Name" value={signUpName} onChange={(e) => setSignUpName(e.target.value)} required />
               <input type="email" placeholder="Email" value={signUpEmail} onChange={(e) => setSignUpEmail(e.target.value)} required />
               <input type="text" placeholder="Institute / Organisation" value={signUpInstitute} onChange={(e) => setSignUpInstitute(e.target.value)} required />
-              <input type="password" placeholder="Password" value={signUpPassword} onChange={(e) => setSignUpPassword(e.target.value)} required />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input type={showSignUpPassword ? 'text' : 'password'} placeholder="Password" value={signUpPassword} onChange={(e) => setSignUpPassword(e.target.value)} required style={{ paddingRight: '40px' }} />
+                <button type="button" onClick={() => setShowSignUpPassword((v) => !v)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#888', fontSize: '16px', lineHeight: 1 }} aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}>
+                  {showSignUpPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
               <button type="submit" disabled={signUpLoading}>{signUpLoading ? 'Signing up…' : 'Sign Up'}</button>
             </form>
           </div>
@@ -84,7 +91,12 @@ export const Login = () => {
               {signUpSuccess && <span style={{ color: '#27ae60', fontSize: '13px' }}>{signUpSuccess}</span>}
               {signInError && <span style={{ color: '#e74c3c', fontSize: '13px' }}>{signInError}</span>}
               <input type="email" placeholder="Email" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} required />
-              <input type="password" placeholder="Password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} required />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input type={showSignInPassword ? 'text' : 'password'} placeholder="Password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} required style={{ paddingRight: '40px' }} />
+                <button type="button" onClick={() => setShowSignInPassword((v) => !v)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#888', fontSize: '16px', lineHeight: 1 }} aria-label={showSignInPassword ? 'Hide password' : 'Show password'}>
+                  {showSignInPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
               <button type="submit" disabled={signInLoading}>{signInLoading ? 'Signing in…' : 'Sign In'}</button>
             </form>
           </div>
