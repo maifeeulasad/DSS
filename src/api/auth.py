@@ -64,13 +64,16 @@ def get_activity_logs_collection() -> Collection:
 # ---------------------------------------------------------------------------
 
 
+VALID_ROLES = {"user", "guest", "admin"}
+
+
 def create_user(name: str, email: str, institute: str, password: str) -> None:
     """Create a new user. Raises ValueError if email is already taken."""
     hashed = pwd_context.hash(password)
     coll = _get_users_collection()
     try:
         coll.insert_one(
-            {"name": name, "email": email, "institute": institute, "password": hashed}
+            {"name": name, "email": email, "institute": institute, "password": hashed, "role": "guest"}
         )
     except DuplicateKeyError:
         raise ValueError(f"Email '{email}' is already registered.")
@@ -86,9 +89,18 @@ def authenticate_user(email: str, password: str) -> Optional[dict]:
 
 
 def list_users() -> list[dict]:
-    """Return all users with only public fields (name, email, institute)."""
+    """Return all users with only public fields (name, email, institute, role)."""
     coll = _get_users_collection()
-    return list(coll.find({}, {"_id": 0, "name": 1, "email": 1, "institute": 1}))
+    return list(coll.find({}, {"_id": 0, "name": 1, "email": 1, "institute": 1, "role": 1}))
+
+
+def update_user_role(email: str, role: str) -> bool:
+    """Update a user's role. Returns True if user was found and updated, False otherwise."""
+    if role not in VALID_ROLES:
+        raise ValueError(f"Invalid role '{role}'. Must be one of: {', '.join(sorted(VALID_ROLES))}.")
+    coll = _get_users_collection()
+    result = coll.update_one({"email": email}, {"$set": {"role": role}})
+    return result.matched_count > 0
 
 
 # ---------------------------------------------------------------------------

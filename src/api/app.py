@@ -20,11 +20,12 @@ from fastapi.responses import JSONResponse
 
 from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user,
                           create_access_token, create_user,
-                          get_activity_logs_collection, list_users, require_auth)
+                          get_activity_logs_collection, list_users, require_auth,
+                          update_user_role)
 from src.api.models import (AnalysisRequest, AnalysisResponse,
                             MethodInfoResponse, SequenceDataResponse,
                             StatusResponse, TokenResponse, UserLogin,
-                            UserRegister, UserSummary)
+                            UserRegister, UserRoleUpdate, UserSummary)
 from src.api.sequence_loader import InMemorySequenceLoader
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import MethodConfig
@@ -286,8 +287,16 @@ def create_app() -> FastAPI:
 
     @app.get("/admin/users", response_model=List[UserSummary])
     async def get_users(_: dict = Depends(require_auth)):
-        """List all registered users (name, email, institute). Requires authentication."""
+        """List all registered users (name, email, institute, role). Requires authentication."""
         return list_users()
+
+    @app.patch("/admin/users/role", response_model=StatusResponse)
+    async def update_role(body: UserRoleUpdate, _: dict = Depends(require_auth)):
+        """Update a user's role. Email and role are supplied in the request body. Requires authentication."""
+        found = update_user_role(body.email, body.role)
+        if not found:
+            raise HTTPException(status_code=404, detail=f"User '{body.email}' not found.")
+        return StatusResponse(status="success", message=f"Role updated to '{body.role}'.")
 
     @app.post("/auth/register", response_model=StatusResponse, status_code=201)
     async def register(body: UserRegister):

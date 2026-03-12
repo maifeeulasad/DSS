@@ -3,7 +3,7 @@ Pydantic models for API request/response schemas
 """
 
 import base64
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -88,3 +88,11 @@ class UserSummary(BaseModel):
     name: str
     email: str
     institute: str
+    role: Optional[str] = None
+
+
+class UserRoleUpdate(BaseModel):
+    """Request body for updating a user's role"""
+
+    email: EmailStr
+    role: Literal["user", "guest", "admin"]

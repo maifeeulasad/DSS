@@ -103,7 +103,7 @@ class DSSApiClient {
     AuthToken.clear();
   }
 
-  static async getUsers(): Promise<{ name: string; email: string; institute: string }[]> {
+  static async getUsers(): Promise<{ name: string; email: string; institute: string; role?: string }[]> {
     const response = await fetch(`${this.baseUrl}/admin/users`, {
       headers: this.authHeaders(),
     });
@@ -112,6 +112,18 @@ class DSSApiClient {
       throw new Error((error as any).detail || 'Failed to fetch users');
     }
     return response.json();
+  }
+
+  static async updateUserRole(email: string, role: string): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/admin/users/role`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
+      body: JSON.stringify({ email, role }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error((error as any).detail || 'Failed to update role');
+    }
   }
 
   // ---- Public endpoints ----------------------------------------------------
