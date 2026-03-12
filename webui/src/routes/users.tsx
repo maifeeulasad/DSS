@@ -117,21 +117,40 @@ const UsersPage = () => {
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
           Users
         </h1>
-        <button
-          type="button"
-          onClick={() => navigate({ to: '/analysis' })}
-          style={{
-            padding: '0.5rem 1.25rem',
-            background: '#3b82f6',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
-        >
-          ← Analysis
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate({ to: '/logs' })}
+              style={{
+                padding: '0.5rem 1.25rem',
+                background: '#f1f5f9',
+                color: '#475569',
+                border: '1px solid #e2e8f0',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+              }}
+            >
+              Activity Logs
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => navigate({ to: '/analysis' })}
+            style={{
+              padding: '0.5rem 1.25rem',
+              background: '#3b82f6',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+            }}
+          >
+            ← Analysis
+          </button>
+        </div>
       </div>
 
       {/* Content */}

@@ -94,6 +94,18 @@ def list_users() -> list[dict]:
     return list(coll.find({}, {"_id": 0, "name": 1, "email": 1, "institute": 1, "role": 1}))
 
 
+def list_activity_logs(limit: int = 200) -> list[dict]:
+    """Return the most recent activity log entries (newest first)."""
+    coll = get_activity_logs_collection()
+    cursor = coll.find({}, {"_id": 0}).sort("timestamp", -1).limit(limit)
+    rows = []
+    for doc in cursor:
+        if "timestamp" in doc:
+            doc["timestamp"] = doc["timestamp"].isoformat()
+        rows.append(doc)
+    return rows
+
+
 def update_user(email: str, name: Optional[str], institute: Optional[str], role: Optional[str]) -> bool:
     """Update editable fields on a user. Returns True if the user was found, False otherwise."""
     fields: dict = {}

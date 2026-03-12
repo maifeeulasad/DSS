@@ -20,8 +20,9 @@ from fastapi.responses import JSONResponse
 
 from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user,
                           create_access_token, create_user,
-                          get_activity_logs_collection, list_users, require_admin,
-                          require_auth, require_user_or_admin, update_user)
+                          get_activity_logs_collection, list_activity_logs,
+                          list_users, require_admin, require_auth,
+                          require_user_or_admin, update_user)
 from src.api.models import (AnalysisRequest, AnalysisResponse,
                             MethodInfoResponse, SequenceDataResponse,
                             StatusResponse, TokenResponse, UserLogin,
@@ -289,6 +290,11 @@ def create_app() -> FastAPI:
     async def get_users(_: dict = Depends(require_auth)):
         """List all registered users (name, email, institute, role). Requires authentication."""
         return list_users()
+
+    @app.get("/admin/logs", response_model=List[Dict[str, Any]])
+    async def get_activity_logs(limit: int = 200, _: dict = Depends(require_admin)):
+        """Return recent API activity log entries. Admin only."""
+        return list_activity_logs(limit=min(limit, 1000))
 
     @app.patch("/admin/users", response_model=StatusResponse)
     async def update_user_endpoint(body: UserUpdate, _: dict = Depends(require_admin)):

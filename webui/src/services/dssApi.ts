@@ -137,6 +137,17 @@ class DSSApiClient {
     }
   }
 
+  static async getActivityLogs(limit = 200): Promise<Record<string, any>[]> {
+    const response = await fetch(`${this.baseUrl}/admin/logs?limit=${limit}`, {
+      headers: this.authHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error((error as any).detail || 'Failed to fetch activity logs');
+    }
+    return response.json();
+  }
+
   // ---- Public endpoints ----------------------------------------------------
 
   static async getMethods(): Promise<MethodInfo[]> {
