@@ -1,6 +1,9 @@
 // Route: /logs  (admin only)
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import { useEffect, useState } from 'react';
+import { CustomLayout } from '../layout/CustomLayout';
 import { AuthToken, DSSApiClient } from '../services/dssApi';
 
 type LogEntry = {
@@ -46,7 +49,6 @@ const Pill = ({ text, bg, color }: { text: string; bg: string; color: string }) 
 );
 
 const LogsPage = () => {
-  const navigate = useNavigate();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,44 +75,26 @@ const LogsPage = () => {
     : logs;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '2rem' }}>
+    <ConfigProvider locale={enUS}>
+      <CustomLayout>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
-          Activity Logs
-        </h1>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button
-            type="button"
-            onClick={load}
-            style={{
-              padding: '0.5rem 1.1rem',
-              background: '#f1f5f9',
-              color: '#475569',
-              border: '1px solid #e2e8f0',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-            }}
-          >
-            ↻ Refresh
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate({ to: '/users' })}
-            style={{
-              padding: '0.5rem 1.1rem',
-              background: '#3b82f6',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-            }}
-          >
-            ← Users
-          </button>
-        </div>
+        <div />
+        <button
+          type="button"
+          onClick={load}
+          style={{
+            padding: '0.5rem 1.1rem',
+            background: '#f1f5f9',
+            color: '#475569',
+            border: '1px solid #e2e8f0',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+          }}
+        >
+          ↻ Refresh
+        </button>
       </div>
 
       {/* Filter */}
@@ -261,7 +245,8 @@ const LogsPage = () => {
           )}
         </div>
       )}
-    </div>
+      </CustomLayout>
+    </ConfigProvider>
   );
 };
 

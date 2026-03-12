@@ -1,6 +1,9 @@
 // Route: /users
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import { useEffect, useState } from 'react';
+import { CustomLayout } from '../layout/CustomLayout';
 import { AuthToken, DSSApiClient } from '../services/dssApi';
 
 type Role = 'user' | 'guest' | 'admin';
@@ -57,7 +60,6 @@ const RoleBadge = ({ role }: { role?: string }) => {
 };
 
 const UsersPage = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -111,48 +113,8 @@ const UsersPage = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '2rem' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
-          Users
-        </h1>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => navigate({ to: '/logs' })}
-              style={{
-                padding: '0.5rem 1.25rem',
-                background: '#f1f5f9',
-                color: '#475569',
-                border: '1px solid #e2e8f0',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-              }}
-            >
-              Activity Logs
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => navigate({ to: '/analysis' })}
-            style={{
-              padding: '0.5rem 1.25rem',
-              background: '#3b82f6',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-            }}
-          >
-            ← Analysis
-          </button>
-        </div>
-      </div>
-
+    <ConfigProvider locale={enUS}>
+      <CustomLayout>
       {/* Content */}
       {loading && (
         <div style={{ textAlign: 'center', color: '#64748b', padding: '4rem' }}>
@@ -342,7 +304,8 @@ const UsersPage = () => {
           )}
         </div>
       )}
-    </div>
+      </CustomLayout>
+    </ConfigProvider>
   );
 };
 
