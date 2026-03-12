@@ -49,7 +49,7 @@ const btnSecondary: React.CSSProperties = {
 };
 
 export const Home = () => {
-  // Canvas uses window/navigator APIs — only render after client-side mount
+  // Canvas uses window/navigator APIs - only render after client-side mount
   const [isClient, setIsClient] = useState(false);
   useEffect(() => { setIsClient(true); }, []);
 
@@ -61,7 +61,7 @@ export const Home = () => {
         </Suspense>
       )}
 
-    {/* DSS overlay — rendered above the fluid canvas */}
+    {/* DSS overlay - rendered above the fluid canvas */}
     <div
       style={{
         position: 'fixed',
@@ -99,14 +99,14 @@ export const Home = () => {
           DNA Sequence Similarities
         </p>
         <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', lineHeight: 1.65, margin: '0 0 32px' }}>
-          Analyze and compare DNA sequences using multiple algorithms — from Chaos Game Representation to
-          Transition Matrices — with built-in phylogenetic tree visualization and a plugin-based REST API.
+          Analyze and compare DNA sequences using multiple algorithms - from Chaos Game Representation to
+          Transition Matrices - with built-in phylogenetic tree visualization and a plugin-based REST API.
         </p>
 
         {/* Feature badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '36px' }}>
           {FEATURES.map(f => (
-            <span key={f.label} style={badge}>{f.icon} {f.label} — {f.desc}</span>
+            <span key={f.label} style={badge}>{f.icon} {f.label} - {f.desc}</span>
           ))}
         </div>
 

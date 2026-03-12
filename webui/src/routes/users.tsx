@@ -119,7 +119,7 @@ const UsersPage = () => {
                       {user.email}
                     </td>
                     <td style={{ padding: '0.875rem 1.25rem', color: '#64748b' }}>
-                      {user.institute || <span style={{ fontStyle: 'italic', color: '#cbd5e1' }}>—</span>}
+                      {user.institute || <span style={{ fontStyle: 'italic', color: '#cbd5e1' }}>-</span>}
                     </td>
                   </tr>
                 ))

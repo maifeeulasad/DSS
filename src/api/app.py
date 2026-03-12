@@ -58,7 +58,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Activity log middleware — logs every request with auth status, identity, and client IP
+    # Activity log middleware - logs every request with auth status, identity, and client IP
     @app.middleware("http")
     async def log_api_activity(request, call_next):
         """Log API call activity: auth status, caller identity, and client IP."""
@@ -340,7 +340,7 @@ def create_app() -> FastAPI:
                     _seed_logger.info("Root user '%s' created (status %d).", root_user, resp.status)
             except urllib.error.HTTPError as exc:
                 if exc.code == 409:
-                    _seed_logger.info("Root user '%s' already exists — skipping.", root_user)
+                    _seed_logger.info("Root user '%s' already exists - skipping.", root_user)
                 else:
                     _seed_logger.warning("Root user creation failed (HTTP %d): %s", exc.code, exc)
             except Exception as exc:  # noqa: BLE001
