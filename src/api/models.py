@@ -80,3 +80,11 @@ class StatusResponse(BaseModel):
     status: str
     message: str = ""
     data: Optional[Dict[str, Any]] = None
+
+
+class UserSummary(BaseModel):
+    """Public user info returned by the admin users list endpoint"""
+
+    name: str
+    email: str
+    institute: str

@@ -20,11 +20,11 @@ from fastapi.responses import JSONResponse
 
 from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user,
                           create_access_token, create_user,
-                          get_activity_logs_collection, require_auth)
+                          get_activity_logs_collection, list_users, require_auth)
 from src.api.models import (AnalysisRequest, AnalysisResponse,
                             MethodInfoResponse, SequenceDataResponse,
                             StatusResponse, TokenResponse, UserLogin,
-                            UserRegister)
+                            UserRegister, UserSummary)
 from src.api.sequence_loader import InMemorySequenceLoader
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import MethodConfig
@@ -283,6 +283,11 @@ def create_app() -> FastAPI:
     # -----------------------------------------------------------------------
     # Auth routes
     # -----------------------------------------------------------------------
+
+    @app.get("/admin/users", response_model=List[UserSummary])
+    async def get_users(_: dict = Depends(require_auth)):
+        """List all registered users (name, email, institute). Requires authentication."""
+        return list_users()
 
     @app.post("/auth/register", response_model=StatusResponse, status_code=201)
     async def register(body: UserRegister):

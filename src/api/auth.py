@@ -85,6 +85,12 @@ def authenticate_user(email: str, password: str) -> Optional[dict]:
     return None
 
 
+def list_users() -> list[dict]:
+    """Return all users with only public fields (name, email, institute)."""
+    coll = _get_users_collection()
+    return list(coll.find({}, {"_id": 0, "name": 1, "email": 1, "institute": 1}))
+
+
 # ---------------------------------------------------------------------------
 # JWT helpers
 # ---------------------------------------------------------------------------

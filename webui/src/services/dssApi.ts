@@ -103,6 +103,17 @@ class DSSApiClient {
     AuthToken.clear();
   }
 
+  static async getUsers(): Promise<{ name: string; email: string; institute: string }[]> {
+    const response = await fetch(`${this.baseUrl}/admin/users`, {
+      headers: this.authHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error((error as any).detail || 'Failed to fetch users');
+    }
+    return response.json();
+  }
+
   // ---- Public endpoints ----------------------------------------------------
 
   static async getMethods(): Promise<MethodInfo[]> {
