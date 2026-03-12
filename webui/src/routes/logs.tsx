@@ -1,6 +1,8 @@
 // Route: /logs  (admin only)
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { ConfigProvider } from 'antd';
+import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
+import { Alert, Button, ConfigProvider, Input, Spin, Table, Tag, Typography } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import enUS from 'antd/locale/en_US';
 import { useEffect, useState } from 'react';
 import { CustomLayout } from '../layout/CustomLayout';
@@ -30,24 +32,6 @@ const HTTP_METHOD_COLORS: Record<string, string> = {
   DELETE: '#ef4444',
 };
 
-const Pill = ({ text, bg, color }: { text: string; bg: string; color: string }) => (
-  <span
-    style={{
-      display: 'inline-block',
-      padding: '0.15rem 0.55rem',
-      borderRadius: '999px',
-      fontSize: '0.72rem',
-      fontWeight: 700,
-      background: bg,
-      color,
-      textTransform: 'uppercase',
-      letterSpacing: '0.04em',
-    }}
-  >
-    {text}
-  </span>
-);
-
 const LogsPage = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,177 +58,154 @@ const LogsPage = () => {
       )
     : logs;
 
+  const columns: ColumnsType<LogEntry> = [
+    {
+      title: 'Timestamp',
+      key: 'timestamp',
+      render: (_, record) => {
+        const ts = record.timestamp
+          ? new Date(record.timestamp).toLocaleString(undefined, { hour12: false })
+          : '-';
+        return <span style={{ color: '#64748b', whiteSpace: 'nowrap', fontSize: '0.85rem' }}>{ts}</span>;
+      },
+    },
+    {
+      title: 'Status',
+      key: 'auth_status',
+      render: (_, record) => {
+        const authStyle = STATUS_COLORS[record.auth_status ?? ''] ?? { bg: '#f1f5f9', color: '#64748b' };
+        return (
+          <Tag
+            style={{
+              background: authStyle.bg,
+              color: authStyle.color,
+              border: 'none',
+              borderRadius: 999,
+              fontWeight: 700,
+              fontSize: '0.72rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {record.auth_status ?? '-'}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Method',
+      key: 'method',
+      render: (_, record) => (
+        <span style={{ fontWeight: 700, color: HTTP_METHOD_COLORS[record.method ?? ''] ?? '#64748b', fontSize: '0.85rem' }}>
+          {record.method ?? '-'}
+        </span>
+      ),
+    },
+    {
+      title: 'Path',
+      key: 'path',
+      render: (_, record) => (
+        <Typography.Text code style={{ fontSize: '0.85rem', color: '#334155' }}>
+          {record.path ?? '-'}
+        </Typography.Text>
+      ),
+    },
+    {
+      title: 'User',
+      key: 'user',
+      render: (_, record) => <span style={{ color: '#475569', fontSize: '0.85rem' }}>{record.user ?? '-'}</span>,
+    },
+    {
+      title: 'IP',
+      key: 'client_ip',
+      render: (_, record) => (
+        <Typography.Text code style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+          {record.client_ip ?? '-'}
+        </Typography.Text>
+      ),
+    },
+    {
+      title: 'HTTP',
+      key: 'status_code',
+      render: (_, record) => {
+        const code = record.status_code ?? 0;
+        const color = code >= 500 ? '#ef4444' : code >= 400 ? '#f59e0b' : '#22c55e';
+        return (
+          <span style={{ fontWeight: 600, color, fontSize: '0.85rem' }}>
+            {record.status_code ?? '-'}
+          </span>
+        );
+      },
+    },
+  ];
+
   return (
     <ConfigProvider locale={enUS}>
       <CustomLayout>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div />
-        <button
-          type="button"
-          onClick={load}
-          style={{
-            padding: '0.5rem 1.1rem',
-            background: '#f1f5f9',
-            color: '#475569',
-            border: '1px solid #e2e8f0',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-          }}
-        >
-          ↻ Refresh
-        </button>
-      </div>
-
-      {/* Filter */}
-      <div style={{ marginBottom: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Filter by user, path, method, IP, status…"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          style={{
-            padding: '0.5rem 0.875rem',
-            border: '1px solid #e2e8f0',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            width: '320px',
-            outline: 'none',
-            color: '#1e293b',
-          }}
-        />
-        {filter && (
-          <span style={{ marginLeft: '0.75rem', fontSize: '0.8rem', color: '#94a3b8' }}>
-            {visible.length} of {logs.length} entries
-          </span>
-        )}
-      </div>
-
-      {loading && (
-        <div style={{ textAlign: 'center', color: '#64748b', padding: '4rem' }}>Loading logs…</div>
-      )}
-
-      {!loading && error && (
-        <div
-          style={{
-            padding: '1rem 1.5rem',
-            background: '#fef2f2',
-            color: '#b91c1c',
-            borderRadius: '0.5rem',
-            border: '1px solid #fecaca',
-          }}
-        >
-          {error}
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div />
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={load}
+            style={{ color: '#475569', borderColor: '#e2e8f0', background: '#f1f5f9' }}
+          >
+            Refresh
+          </Button>
         </div>
-      )}
 
-      {!loading && !error && (
-        <div
-          style={{
-            background: '#fff',
-            borderRadius: '0.75rem',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-            overflow: 'auto',
-          }}
-        >
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ background: '#f1f5f9' }}>
-                {['Timestamp', 'Status', 'Method', 'Path', 'User', 'IP', 'HTTP'].map((col) => (
-                  <th
-                    key={col}
-                    style={{
-                      textAlign: 'left',
-                      padding: '0.75rem 1rem',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      color: '#64748b',
-                      borderBottom: '1px solid #e2e8f0',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {visible.length === 0 ? (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-                    No log entries found.
-                  </td>
-                </tr>
-              ) : (
-                visible.map((log, i) => {
-                  const authStyle = STATUS_COLORS[log.auth_status ?? ''] ?? { bg: '#f1f5f9', color: '#64748b' };
-                  const methodColor = HTTP_METHOD_COLORS[log.method ?? ''] ?? '#64748b';
-                  const ts = log.timestamp
-                    ? new Date(log.timestamp).toLocaleString(undefined, { hour12: false })
-                    : '-';
-                  return (
-                    <tr
-                      key={i}
-                      style={{
-                        borderBottom: i < visible.length - 1 ? '1px solid #f1f5f9' : 'none',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = '#f8fafc'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = ''; }}
-                    >
-                      <td style={{ padding: '0.6rem 1rem', color: '#64748b', whiteSpace: 'nowrap' }}>{ts}</td>
-                      <td style={{ padding: '0.6rem 1rem' }}>
-                        <Pill text={log.auth_status ?? '-'} bg={authStyle.bg} color={authStyle.color} />
-                      </td>
-                      <td style={{ padding: '0.6rem 1rem' }}>
-                        <span style={{ fontWeight: 700, color: methodColor }}>{log.method ?? '-'}</span>
-                      </td>
-                      <td style={{ padding: '0.6rem 1rem', color: '#334155', fontFamily: 'monospace' }}>
-                        {log.path ?? '-'}
-                      </td>
-                      <td style={{ padding: '0.6rem 1rem', color: '#475569' }}>{log.user ?? '-'}</td>
-                      <td style={{ padding: '0.6rem 1rem', color: '#94a3b8', fontFamily: 'monospace' }}>
-                        {log.client_ip ?? '-'}
-                      </td>
-                      <td style={{ padding: '0.6rem 1rem' }}>
-                        <span
-                          style={{
-                            fontWeight: 600,
-                            color:
-                              (log.status_code ?? 0) >= 500
-                                ? '#ef4444'
-                                : (log.status_code ?? 0) >= 400
-                                  ? '#f59e0b'
-                                  : '#22c55e',
-                          }}
-                        >
-                          {log.status_code ?? '-'}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-
-          {visible.length > 0 && (
-            <div
-              style={{
-                padding: '0.6rem 1rem',
-                background: '#f8fafc',
-                borderTop: '1px solid #e2e8f0',
-                fontSize: '0.78rem',
-                color: '#94a3b8',
-              }}
-            >
-              {visible.length} entr{visible.length !== 1 ? 'ies' : 'y'}
-            </div>
+        {/* Filter */}
+        <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Input
+            placeholder="Filter by user, path, method, IP, status…"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            allowClear
+            style={{ width: 320 }}
+          />
+          {filter && (
+            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+              {visible.length} of {logs.length} entries
+            </span>
           )}
         </div>
-      )}
+
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '4rem' }}>
+            <Spin size="large" />
+          </div>
+        )}
+
+        {!loading && error && (
+          <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />
+        )}
+
+        {!loading && !error && (
+          <Table
+            dataSource={visible}
+            columns={columns}
+            rowKey={(_, index) => String(index)}
+            pagination={false}
+            size="small"
+            style={{
+              background: '#fff',
+              borderRadius: '0.75rem',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+              overflow: 'hidden',
+            }}
+            locale={{ emptyText: 'No log entries found.' }}
+            footer={
+              visible.length > 0
+                ? () => (
+                    <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                      {visible.length} entr{visible.length !== 1 ? 'ies' : 'y'}
+                    </span>
+                  )
+                : undefined
+            }
+            scroll={{ x: 'max-content' }}
+          />
+        )}
       </CustomLayout>
     </ConfigProvider>
   );

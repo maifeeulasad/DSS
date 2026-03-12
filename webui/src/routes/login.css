@@ -233,3 +233,87 @@
 .container.right-panel-active .overlay-right {
     transform: translateX(20%);
 }
+
+/* ── Antd component overrides ────────────────────────────── */
+/* Plain antd Input inside the login page */
+.login-page .ant-input {
+    background-color: #eee;
+    border: none;
+    box-shadow: none;
+    padding: 12px 15px;
+    margin: 8px 0;
+    border-radius: 4px;
+}
+
+.login-page .ant-input:hover,
+.login-page .ant-input:focus {
+    background-color: #ddd;
+    border: none;
+    box-shadow: none;
+}
+
+/* Password input wrapper */
+.login-page .ant-input-affix-wrapper,
+.login-page .ant-input-affix-wrapper:hover,
+.login-page .ant-input-affix-wrapper:focus-within {
+    background-color: #eee;
+    border: none;
+    box-shadow: none;
+    padding: 0 11px 0 0;
+    margin: 8px 0;
+    border-radius: 4px;
+}
+
+.login-page .ant-input-affix-wrapper > input.ant-input {
+    background-color: transparent;
+    padding: 12px 15px;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* antd Button replaces .login-page button */
+.login-page button.ant-btn {
+    border-radius: 20px;
+    border: 1px solid #FF4B2B;
+    background-color: #FF4B2B;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 12px 45px;
+    height: auto;
+    line-height: 1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.login-page button.ant-btn:hover,
+.login-page button.ant-btn:focus {
+    opacity: 0.9;
+    color: #FFFFFF;
+    border-color: #FF4B2B;
+    background-color: #FF4B2B;
+}
+
+.login-page button.ant-btn:active {
+    transform: scale(0.95);
+}
+
+.login-page button.ant-btn.ghost {
+    background-color: transparent;
+    border-color: #FFFFFF;
+}
+
+.login-page button.ant-btn.ghost:hover,
+.login-page button.ant-btn.ghost:focus {
+    background-color: transparent;
+    border-color: #FFFFFF;
+    color: #FFFFFF;
+}
+
+/* Alert messages */
+.login-page .ant-alert {
+    text-align: left;
+}
