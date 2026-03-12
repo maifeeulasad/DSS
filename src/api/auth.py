@@ -159,9 +159,18 @@ def require_admin(
             detail="Admin access required.",
         )
     return payload
-    except JWTError:
+
+
+def require_user_or_admin(
+    payload: dict = Depends(require_auth),
+) -> dict:
+    """FastAPI dependency - allows 'user' and 'admin' roles; rejects 'guest'."""
+    email = payload.get("sub")
+    coll = _get_users_collection()
+    user = coll.find_one({"email": email}, {"role": 1})
+    if not user or user.get("role") not in {"user", "admin"}:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token.",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to registered users.",
         )
+    return payload

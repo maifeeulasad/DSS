@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse
 from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user,
                           create_access_token, create_user,
                           get_activity_logs_collection, list_users, require_admin,
-                          require_auth, update_user)
+                          require_auth, require_user_or_admin, update_user)
 from src.api.models import (AnalysisRequest, AnalysisResponse,
                             MethodInfoResponse, SequenceDataResponse,
                             StatusResponse, TokenResponse, UserLogin,
@@ -175,7 +175,7 @@ def create_app() -> FastAPI:
         )
 
     @app.post("/analyze", response_model=AnalysisResponse)
-    async def analyze_sequences(request: AnalysisRequest, _: dict = Depends(require_auth)):
+    async def analyze_sequences(request: AnalysisRequest, _: dict = Depends(require_user_or_admin)):
         """Analyze DNA sequences using the specified method"""
         try:
             start_time = time.time()
@@ -243,7 +243,7 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
     @app.post("/upload", response_model=List[SequenceDataResponse])
-    async def upload_and_parse(files: List[UploadFile] = File(...), _: dict = Depends(require_auth)):
+    async def upload_and_parse(files: List[UploadFile] = File(...), _: dict = Depends(require_user_or_admin)):
         """Upload and parse sequence files to preview sequences"""
         try:
             files_data = []
