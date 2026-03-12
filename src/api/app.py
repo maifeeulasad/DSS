@@ -20,12 +20,12 @@ from fastapi.responses import JSONResponse
 
 from src.api.auth import (ALGORITHM, SECRET_KEY, authenticate_user,
                           create_access_token, create_user,
-                          get_activity_logs_collection, list_users, require_auth,
-                          update_user_role)
+                          get_activity_logs_collection, list_users, require_admin,
+                          require_auth, update_user)
 from src.api.models import (AnalysisRequest, AnalysisResponse,
                             MethodInfoResponse, SequenceDataResponse,
                             StatusResponse, TokenResponse, UserLogin,
-                            UserRegister, UserRoleUpdate, UserSummary)
+                            UserRegister, UserUpdate, UserSummary)
 from src.api.sequence_loader import InMemorySequenceLoader
 from src.core.analysis_service import AnalysisService
 from src.core.interfaces import MethodConfig
@@ -290,13 +290,16 @@ def create_app() -> FastAPI:
         """List all registered users (name, email, institute, role). Requires authentication."""
         return list_users()
 
-    @app.patch("/admin/users/role", response_model=StatusResponse)
-    async def update_role(body: UserRoleUpdate, _: dict = Depends(require_auth)):
-        """Update a user's role. Email and role are supplied in the request body. Requires authentication."""
-        found = update_user_role(body.email, body.role)
+    @app.patch("/admin/users", response_model=StatusResponse)
+    async def update_user_endpoint(body: UserUpdate, _: dict = Depends(require_admin)):
+        """Update name, institute, and/or role for a user. Admin only."""
+        try:
+            found = update_user(body.email, body.name, body.institute, body.role)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
         if not found:
             raise HTTPException(status_code=404, detail=f"User '{body.email}' not found.")
-        return StatusResponse(status="success", message=f"Role updated to '{body.role}'.")
+        return StatusResponse(status="success", message="User updated.")
 
     @app.post("/auth/register", response_model=StatusResponse, status_code=201)
     async def register(body: UserRegister):
@@ -313,7 +316,7 @@ def create_app() -> FastAPI:
         user = authenticate_user(body.email, body.password)
         if not user:
             raise HTTPException(status_code=401, detail="Invalid email or password.")
-        token = create_access_token(str(user["_id"]), user["email"])
+        token = create_access_token(str(user["_id"]), user["email"], user.get("role", "guest"))
         return TokenResponse(access_token=token)
 
     # -----------------------------------------------------------------------

@@ -53,6 +53,17 @@ export const AuthToken = {
   set: (token: string): void => localStorage.setItem(TOKEN_KEY, token),
   clear: (): void => localStorage.removeItem(TOKEN_KEY),
   isPresent: (): boolean => !!localStorage.getItem(TOKEN_KEY),
+  /** Decode the JWT payload (client-side only, no verification) and return the role claim. */
+  getRole: (): string | null => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role ?? null;
+    } catch {
+      return null;
+    }
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -114,15 +125,15 @@ class DSSApiClient {
     return response.json();
   }
 
-  static async updateUserRole(email: string, role: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/admin/users/role`, {
+  static async updateUser(email: string, fields: { name?: string; institute?: string; role?: string }): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/admin/users`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
-      body: JSON.stringify({ email, role }),
+      body: JSON.stringify({ email, ...fields }),
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error((error as any).detail || 'Failed to update role');
+      throw new Error((error as any).detail || 'Failed to update user');
     }
   }
 

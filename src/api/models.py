@@ -91,8 +91,10 @@ class UserSummary(BaseModel):
     role: Optional[str] = None
 
 
-class UserRoleUpdate(BaseModel):
-    """Request body for updating a user's role"""
+class UserUpdate(BaseModel):
+    """Request body for updating editable user fields (admin only)"""
 
     email: EmailStr
-    role: Literal["user", "guest", "admin"]
+    name: Optional[str] = None
+    institute: Optional[str] = None
+    role: Optional[Literal["user", "guest", "admin"]] = None

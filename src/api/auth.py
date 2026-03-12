@@ -94,12 +94,21 @@ def list_users() -> list[dict]:
     return list(coll.find({}, {"_id": 0, "name": 1, "email": 1, "institute": 1, "role": 1}))
 
 
-def update_user_role(email: str, role: str) -> bool:
-    """Update a user's role. Returns True if user was found and updated, False otherwise."""
-    if role not in VALID_ROLES:
-        raise ValueError(f"Invalid role '{role}'. Must be one of: {', '.join(sorted(VALID_ROLES))}.")
+def update_user(email: str, name: Optional[str], institute: Optional[str], role: Optional[str]) -> bool:
+    """Update editable fields on a user. Returns True if the user was found, False otherwise."""
+    fields: dict = {}
+    if name is not None:
+        fields["name"] = name
+    if institute is not None:
+        fields["institute"] = institute
+    if role is not None:
+        if role not in VALID_ROLES:
+            raise ValueError(f"Invalid role '{role}'. Must be one of: {', '.join(sorted(VALID_ROLES))}.")
+        fields["role"] = role
+    if not fields:
+        return True  # nothing to update, treat as success
     coll = _get_users_collection()
-    result = coll.update_one({"email": email}, {"$set": {"role": role}})
+    result = coll.update_one({"email": email}, {"$set": fields})
     return result.matched_count > 0
 
 
@@ -108,10 +117,11 @@ def update_user_role(email: str, role: str) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def create_access_token(user_id: str, email: str) -> str:
+def create_access_token(user_id: str, email: str, role: str = "guest") -> str:
     payload = {
         "sub": email,
         "uid": user_id,
+        "role": role,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRE_MINUTES),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
@@ -128,6 +138,27 @@ def require_auth(
     """FastAPI dependency - inject into any route that needs authentication."""
     try:
         return jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+def require_admin(
+    payload: dict = Depends(require_auth),
+) -> dict:
+    """FastAPI dependency - only allows users whose stored role is 'admin'."""
+    email = payload.get("sub")
+    coll = _get_users_collection()
+    user = coll.find_one({"email": email}, {"role": 1})
+    if not user or user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required.",
+        )
+    return payload
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
