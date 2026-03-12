@@ -62,6 +62,10 @@ jobs:
           echo "Loading frontend image..."
           docker load < dss-ui.tar
 
+          echo "Removing stale DSS images from k3s containerd..."
+          sudo ctr -n k8s.io images rm docker.io/library/dss-api:latest 2>/dev/null || true
+          sudo ctr -n k8s.io images rm docker.io/library/dss-ui:latest 2>/dev/null || true
+
           echo "Loading images into containerd..."
           docker save dss-api:latest | sudo ctr -n k8s.io images import -
           docker save dss-ui:latest | sudo ctr -n k8s.io images import -
@@ -117,6 +121,13 @@ jobs:
           sleep 3
 
           rm -f dss-api.tar dss-ui.tar
+
+          echo "Cleaning up Docker images on server..."
+          docker rmi dss-api:latest dss-ui:latest 2>/dev/null || true
+          docker image prune -af || true
+
+          echo "Cleaning up unused images from k3s containerd..."
+          sudo crictl rmi --prune 2>/dev/null || true
           EOF
 
       - name: Verify deployment
@@ -167,4 +178,5 @@ jobs:
         if: always()
         run: |
           rm -f ~/.ssh/id_rsa dss-api.tar dss-ui.tar
-          docker image prune -f || true
+          docker rmi dss-api:latest dss-ui:latest 2>/dev/null || true
+          docker image prune -af || true
