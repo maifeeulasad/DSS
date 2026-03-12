@@ -7,6 +7,7 @@ import CopyOutlined from '@ant-design/icons/CopyOutlined';
 import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import AppstoreOutlined from '@ant-design/icons/AppstoreOutlined';
 import FileTextOutlined from '@ant-design/icons/FileTextOutlined';
+import UserOutlined from '@ant-design/icons/UserOutlined';
 import logo from './logo.svg';
 
 const defaultMenus: MenuDataItem[] = [
@@ -25,6 +26,11 @@ const defaultMenus: MenuDataItem[] = [
     name: 'Documentation',
     icon: <FileTextOutlined />,
   },
+  {
+    path: '/users/',
+    name: 'Users',
+    icon: <UserOutlined />,
+  }
 ];
 
 const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
