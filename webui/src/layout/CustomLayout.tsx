@@ -30,6 +30,11 @@ const defaultMenus: MenuDataItem[] = [
     path: '/users/',
     name: 'Users',
     icon: <UserOutlined />,
+  },
+  {
+    path: '/logs/',
+    name: 'Activity Logs',
+    icon: <CopyOutlined />,
   }
 ];
 
