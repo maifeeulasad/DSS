@@ -39,7 +39,7 @@ export default defineConfig({
         // Only prerender public routes; /analysis requires localStorage (auth)
         autoStaticPathsDiscovery: true,
         crawlLinks: true,
-        filter: ({ path }: { path: string }) => !path.startsWith('/analysis'),
+        // filter: ({ path }: { path: string }) => !path.startsWith('/analysis'),
         failOnError: false,
       },
     }),
