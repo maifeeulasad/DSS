@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import type { MenuDataItem } from '@ant-design/pro-components';
 import { PageContainer, ProLayout } from '@ant-design/pro-components';
 import { notification } from 'antd';
@@ -8,6 +8,8 @@ import HomeOutlined from '@ant-design/icons/HomeOutlined';
 import AppstoreOutlined from '@ant-design/icons/AppstoreOutlined';
 import FileTextOutlined from '@ant-design/icons/FileTextOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
+import MenuFoldOutlined from '@ant-design/icons/MenuFoldOutlined';
+import MenuUnfoldOutlined from '@ant-design/icons/MenuUnfoldOutlined';
 import logo from './logo.svg';
 
 const defaultMenus: MenuDataItem[] = [
@@ -95,27 +97,70 @@ interface ICustomLayoutProps {
   children: ReactNode;
 }
 
-const CustomLayout = ({ children }: ICustomLayoutProps) => (
-  <ProLayout
-    logo={logo}
-    title="DSS"
-    style={{ minHeight: '100vh' }}
-    fixSiderbar
-    menu={{
-      request: async () => loopMenuItem(defaultMenus),
-    }}
-    route={{ routes: defaultMenus }}
-    menuItemRender={renderMenuItem}
-    subMenuItemRender={subMenuItemRender}
-    // eslint-disable-next-line
-    menuFooterRender={(props) => <CustomFooterMenu {...props} />}
-  >
-    <PageContainer header={{ title: true }}>
-      <div style={{ padding: 16, background: 'transparent' }}>
-        {children}
-      </div>
-    </PageContainer>
-  </ProLayout>
-);
+const CustomLayout = ({ children }: ICustomLayoutProps) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setCollapsed(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return (
+    <ProLayout
+      logo={logo}
+      title="DSS"
+      style={{ minHeight: '100vh' }}
+      fixSiderbar
+      collapsed={collapsed}
+      onCollapse={(collapsed) => setCollapsed(collapsed)}
+      breakpoint={false}
+      menu={{
+        request: async () => loopMenuItem(defaultMenus),
+      }}
+      route={{ routes: defaultMenus }}
+      menuItemRender={renderMenuItem}
+      subMenuItemRender={subMenuItemRender}
+      menuFooterRender={(props) => <CustomFooterMenu {...props} />}
+      menuExtraRender={({ collapsed: isCollapsed }) => 
+        !isMobile && (
+          <div 
+            onClick={() => setCollapsed(!isCollapsed)} 
+            style={{ 
+              cursor: 'pointer', 
+              padding: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#64748b',
+              fontSize: '1rem',
+            }}
+          >
+            {isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          </div>
+        )
+      }
+    >
+      <PageContainer header={{ title: true }}>
+        <div style={{ 
+          padding: isMobile ? '0.75rem' : 16, 
+          background: 'transparent',
+          width: '100%',
+        }}>
+          {children}
+        </div>
+      </PageContainer>
+    </ProLayout>
+  );
+};
 
 export { CustomLayout };
