@@ -60,18 +60,20 @@ const LogsPage = () => {
 
   const columns: ColumnsType<LogEntry> = [
     {
-      title: 'Timestamp',
+      title: 'Time',
       key: 'timestamp',
+      width: 140,
       render: (_, record) => {
         const ts = record.timestamp
-          ? new Date(record.timestamp).toLocaleString(undefined, { hour12: false })
+          ? new Date(record.timestamp).toLocaleString(undefined, { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
           : '-';
-        return <span style={{ color: '#64748b', whiteSpace: 'nowrap', fontSize: '0.85rem' }}>{ts}</span>;
+        return <span style={{ color: '#64748b', whiteSpace: 'nowrap', fontSize: '0.75rem' }}>{ts}</span>;
       },
     },
     {
       title: 'Status',
       key: 'auth_status',
+      width: 100,
       render: (_, record) => {
         const authStyle = STATUS_COLORS[record.auth_status ?? ''] ?? { bg: '#f1f5f9', color: '#64748b' };
         return (
@@ -82,9 +84,10 @@ const LogsPage = () => {
               border: 'none',
               borderRadius: 999,
               fontWeight: 700,
-              fontSize: '0.72rem',
+              fontSize: '0.65rem',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
+              padding: '1px 6px',
             }}
           >
             {record.auth_status ?? '-'}
@@ -95,8 +98,9 @@ const LogsPage = () => {
     {
       title: 'Method',
       key: 'method',
+      width: 70,
       render: (_, record) => (
-        <span style={{ fontWeight: 700, color: HTTP_METHOD_COLORS[record.method ?? ''] ?? '#64748b', fontSize: '0.85rem' }}>
+        <span style={{ fontWeight: 700, color: HTTP_METHOD_COLORS[record.method ?? ''] ?? '#64748b', fontSize: '0.75rem' }}>
           {record.method ?? '-'}
         </span>
       ),
@@ -104,8 +108,9 @@ const LogsPage = () => {
     {
       title: 'Path',
       key: 'path',
+      width: 150,
       render: (_, record) => (
-        <Typography.Text code style={{ fontSize: '0.85rem', color: '#334155' }}>
+        <Typography.Text code style={{ fontSize: '0.7rem', color: '#334155' }}>
           {record.path ?? '-'}
         </Typography.Text>
       ),
@@ -113,13 +118,15 @@ const LogsPage = () => {
     {
       title: 'User',
       key: 'user',
-      render: (_, record) => <span style={{ color: '#475569', fontSize: '0.85rem' }}>{record.user ?? '-'}</span>,
+      width: 120,
+      render: (_, record) => <span style={{ color: '#475569', fontSize: '0.75rem' }}>{record.user ?? '-'}</span>,
     },
     {
       title: 'IP',
       key: 'client_ip',
+      width: 100,
       render: (_, record) => (
-        <Typography.Text code style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+        <Typography.Text code style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
           {record.client_ip ?? '-'}
         </Typography.Text>
       ),
@@ -127,11 +134,12 @@ const LogsPage = () => {
     {
       title: 'HTTP',
       key: 'status_code',
+      width: 60,
       render: (_, record) => {
         const code = record.status_code ?? 0;
         const color = code >= 500 ? '#ef4444' : code >= 400 ? '#f59e0b' : '#22c55e';
         return (
-          <span style={{ fontWeight: 600, color, fontSize: '0.85rem' }}>
+          <span style={{ fontWeight: 600, color, fontSize: '0.75rem' }}>
             {record.status_code ?? '-'}
           </span>
         );
@@ -142,36 +150,51 @@ const LogsPage = () => {
   return (
     <ConfigProvider locale={enUS}>
       <CustomLayout>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        {/* Header - responsive */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
+        }}>
           <div />
           <Button
             icon={<ReloadOutlined />}
             onClick={load}
             style={{ color: '#475569', borderColor: '#e2e8f0', background: '#f1f5f9' }}
+            size="small"
           >
             Refresh
           </Button>
         </div>
 
-        {/* Filter */}
-        <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Filter - responsive */}
+        <div style={{ 
+          marginBottom: '1rem', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '0.5rem',
+          flexWrap: 'wrap',
+        }}>
           <Input
-            placeholder="Filter by user, path, method, IP, status…"
+            placeholder="Filter logs..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             allowClear
-            style={{ width: 320 }}
+            style={{ width: '100%', maxWidth: 280 }}
+            size="small"
           />
           {filter && (
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
               {visible.length} of {logs.length} entries
             </span>
           )}
         </div>
 
         {loading && (
-          <div style={{ textAlign: 'center', padding: '4rem' }}>
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
             <Spin size="large" />
           </div>
         )}
@@ -189,7 +212,7 @@ const LogsPage = () => {
             size="small"
             style={{
               background: '#fff',
-              borderRadius: '0.75rem',
+              borderRadius: '0.5rem',
               boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
               overflow: 'hidden',
             }}
@@ -197,13 +220,13 @@ const LogsPage = () => {
             footer={
               visible.length > 0
                 ? () => (
-                    <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
                       {visible.length} entr{visible.length !== 1 ? 'ies' : 'y'}
                     </span>
                   )
                 : undefined
             }
-            scroll={{ x: 'max-content' }}
+            scroll={{ x: 650 }}
           />
         )}
       </CustomLayout>
