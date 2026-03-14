@@ -2,7 +2,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 // Lazy-loaded so it only renders on the client (Canvas uses window/navigator APIs)
-const Canvas = React.lazy(() => import('react-webgl-fluid-play/src/Canvas'));
+const Canvas = React.lazy(() => import('react-webgl-fluid-play'));
 
 const FEATURES = [
   { icon: '🧬', label: 'CGR', desc: 'Chaos Game Representation' },
@@ -57,7 +57,9 @@ export const Home = () => {
     <>
       {isClient && (
         <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#000' }} />}>
-          <Canvas />
+          <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+            <Canvas initialAnimation={{ path: 'oval', options: { maxLoops: 5 } }} loadingFallback={null} />
+          </div>
         </Suspense>
       )}
 
