@@ -13,41 +13,6 @@ const FEATURES = [
   { icon: '⚡', label: 'REST API', desc: 'Headless HTTP Analysis' },
 ];
 
-const badge: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.18)',
-  borderRadius: '40px',
-  padding: '5px 14px',
-  color: 'rgba(255,255,255,0.88)',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  whiteSpace: 'nowrap',
-};
-
-const btnPrimary: React.CSSProperties = {
-  padding: '13px 36px',
-  background: 'linear-gradient(135deg, #4fc3f7 0%, #7c4dff 100%)',
-  color: '#fff',
-  borderRadius: '50px',
-  fontWeight: 700,
-  fontSize: '1rem',
-  textDecoration: 'none',
-  boxShadow: '0 4px 24px rgba(79,195,247,0.35)',
-  display: 'inline-block',
-};
-
-const btnSecondary: React.CSSProperties = {
-  padding: '13px 36px',
-  background: 'rgba(255,255,255,0.08)',
-  color: '#fff',
-  borderRadius: '50px',
-  fontWeight: 600,
-  fontSize: '1rem',
-  textDecoration: 'none',
-  border: '1px solid rgba(255,255,255,0.22)',
-  display: 'inline-block',
-};
-
 export const Home = () => {
   // Canvas uses window/navigator APIs - only render after client-side mount
   const [isClient, setIsClient] = useState(false);
@@ -73,56 +38,160 @@ export const Home = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        pointerEvents: 'none',          // let mouse events reach the fluid bg
-        fontFamily: 'system-ui, sans-serif',
+        pointerEvents: 'none',
+        fontFamily: 'Inter, system-ui, sans-serif',
+        padding: '1rem',
       }}
     >
-      {/* Glassmorphism card */}
+      {/* Glassmorphism card - mobile responsive */}
       <div
         style={{
-          background: 'rgba(0,0,0,0.35)',
+          background: 'rgba(0,0,0,0.45)',
           backdropFilter: 'blur(22px)',
           WebkitBackdropFilter: 'blur(22px)',
-          border: '1px solid rgba(255,255,255,0.14)',
-          borderRadius: '24px',
-          padding: '48px 52px',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '1.5rem',
+          padding: '2rem 1.5rem',
           maxWidth: '680px',
-          width: '90vw',
+          width: '100%',
           textAlign: 'center',
           pointerEvents: 'auto',
           boxShadow: '0 12px 64px rgba(0,0,0,0.55)',
         }}
       >
-        {/* Title */}
-        <h1 style={{ color: '#fff', fontSize: '4rem', fontWeight: 900, margin: '0 0 4px', letterSpacing: '-3px', lineHeight: 1 }}>
+        {/* Title - responsive font size */}
+        <h1 style={{ 
+          color: '#fff', 
+          fontSize: 'clamp(2.5rem, 10vw, 4rem)', 
+          fontWeight: 900, 
+          margin: '0 0 4px', 
+          letterSpacing: '-0.03em', 
+          lineHeight: 1.1 
+        }}>
           DSS
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '0 0 20px', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}>
+        
+        <p style={{ 
+          color: 'rgba(255,255,255,0.7)', 
+          fontSize: 'clamp(0.7rem, 2.5vw, 0.9rem)', 
+          margin: '0 0 1.25rem', 
+          letterSpacing: '0.15em', 
+          textTransform: 'uppercase', 
+          fontWeight: 500 
+        }}>
           DNA Sequence Similarities
         </p>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', lineHeight: 1.65, margin: '0 0 32px' }}>
+        
+        <p style={{ 
+          color: 'rgba(255,255,255,0.6)', 
+          fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
+          lineHeight: 1.65, 
+          margin: '0 0 1.5rem',
+          maxWidth: '500px',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        }}>
           Analyze and compare DNA sequences using multiple algorithms - from Chaos Game Representation to
           Transition Matrices - with built-in phylogenetic tree visualization and a plugin-based REST API.
         </p>
 
-        {/* Feature badges */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '36px' }}>
+        {/* Feature badges - responsive flex */}
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '0.5rem', 
+          justifyContent: 'center', 
+          marginBottom: '2rem' 
+        }}>
           {FEATURES.map(f => (
-            <span key={f.label} style={badge}>{f.icon} {f.label} - {f.desc}</span>
+            <span 
+              key={f.label} 
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '2rem',
+                padding: '0.35rem 0.85rem',
+                color: 'rgba(255,255,255,0.88)',
+                fontSize: 'clamp(0.65rem, 2vw, 0.8rem)',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {f.icon} {f.label}
+            </span>
           ))}
         </div>
 
-        {/* CTA buttons */}
-        <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="/analysis" style={btnPrimary}>Start Analysis</a>
-          <a href="/login" style={btnSecondary}>Login</a>
+        {/* CTA buttons - responsive flex */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '0.75rem', 
+          justifyContent: 'center', 
+          flexWrap: 'wrap',
+          flexDirection: 'row',
+        }}>
+          <a 
+            href="/analysis" 
+            style={{
+              padding: '0.75rem 2rem',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              color: '#fff',
+              borderRadius: '3rem',
+              fontWeight: 700,
+              fontSize: 'clamp(0.85rem, 3vw, 1rem)',
+              textDecoration: 'none',
+              boxShadow: '0 4px 24px rgba(79,195,247,0.35)',
+              display: 'inline-block',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 6px 28px rgba(79,195,247,0.45)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 24px rgba(79,195,247,0.35)';
+            }}
+          >
+            Start Analysis
+          </a>
+          <a 
+            href="/login" 
+            style={{
+              padding: '0.75rem 2rem',
+              background: 'rgba(255,255,255,0.1)',
+              color: '#fff',
+              borderRadius: '3rem',
+              fontWeight: 600,
+              fontSize: 'clamp(0.85rem, 3vw, 1rem)',
+              textDecoration: 'none',
+              border: '1px solid rgba(255,255,255,0.2)',
+              display: 'inline-block',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+            }}
+          >
+            Login
+          </a>
         </div>
       </div>
 
-      {/* Subtle hint */}
-      {/* <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: '0.72rem', marginTop: '20px', pointerEvents: 'none', letterSpacing: '0.05em' }}>
-        Move your mouse to interact with the fluid simulation
-      </p> */}
+      {/* Mobile-friendly bottom hint */}
+      <p style={{ 
+        color: 'rgba(255,255,255,0.28)', 
+        fontSize: '0.7rem', 
+        marginTop: '1.5rem', 
+        pointerEvents: 'none', 
+        letterSpacing: '0.05em',
+        display: 'block',
+      }}>
+        DNA Sequence Similarities v1.0
+      </p>
     </div>
   </>
   );
