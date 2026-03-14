@@ -85,13 +85,15 @@ const UsersPage = () => {
     {
       title: 'Name',
       dataIndex: 'name',
+      key: 'name',
+      width: 120,
       render: (name, record) =>
         editingEmail === record.email ? (
           <Input
             size="small"
             value={editState.name}
             onChange={(e) => setEditState((s) => ({ ...s, name: e.target.value }))}
-            style={{ maxWidth: 200 }}
+            style={{ minWidth: 100 }}
           />
         ) : (
           <span style={{ fontWeight: 500, color: '#1e293b' }}>{name}</span>
@@ -100,28 +102,34 @@ const UsersPage = () => {
     {
       title: 'Email',
       dataIndex: 'email',
-      render: (email) => <span style={{ color: '#475569' }}>{email}</span>,
+      key: 'email',
+      width: 180,
+      render: (email) => <span style={{ color: '#475569', fontSize: '0.85rem' }}>{email}</span>,
     },
     {
       title: 'Institute',
       dataIndex: 'institute',
+      key: 'institute',
+      width: 150,
       render: (institute, record) =>
         editingEmail === record.email ? (
           <Input
             size="small"
             value={editState.institute}
             onChange={(e) => setEditState((s) => ({ ...s, institute: e.target.value }))}
-            style={{ maxWidth: 200 }}
+            style={{ minWidth: 100 }}
           />
         ) : institute ? (
-          <span style={{ color: '#64748b' }}>{institute}</span>
+          <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{institute}</span>
         ) : (
-          <span style={{ fontStyle: 'italic', color: '#cbd5e1' }}>-</span>
+          <span style={{ fontStyle: 'italic', color: '#cbd5e1', fontSize: '0.85rem' }}>-</span>
         ),
     },
     {
       title: 'Role',
       dataIndex: 'role',
+      key: 'role',
+      width: 90,
       render: (role, record) => {
         if (editingEmail === record.email) {
           return (
@@ -129,7 +137,7 @@ const UsersPage = () => {
               size="small"
               value={editState.role}
               onChange={(val) => setEditState((s) => ({ ...s, role: val as Role }))}
-              style={{ width: 100 }}
+              style={{ minWidth: 80 }}
               options={[
                 { value: 'guest', label: 'guest' },
                 { value: 'user', label: 'user' },
@@ -149,6 +157,8 @@ const UsersPage = () => {
               borderRadius: 999,
               fontWeight: 600,
               textTransform: 'capitalize',
+              fontSize: '0.7rem',
+              padding: '2px 8px',
             }}
           >
             {key}
@@ -161,25 +171,26 @@ const UsersPage = () => {
           {
             title: '',
             key: 'actions',
+            width: 120,
             render: (_: unknown, record: User) => {
               const isEditing = editingEmail === record.email;
               if (isEditing) {
                 return (
-                  <span style={{ display: 'inline-flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <Button
                       type="primary"
                       size="small"
                       onClick={() => saveUser(record.email)}
                       loading={saving}
-                      style={{ background: '#22c55e', borderColor: '#22c55e' }}
+                      style={{ background: '#22c55e', borderColor: '#22c55e', fontSize: '0.7rem', padding: '0 8px' }}
                     >
                       Save
                     </Button>
-                    <Button size="small" onClick={cancelEdit} disabled={saving}>
+                    <Button size="small" onClick={cancelEdit} disabled={saving} style={{ fontSize: '0.7rem', padding: '0 8px' }}>
                       Cancel
                     </Button>
                     {saveError && (
-                      <span style={{ color: '#ef4444', fontSize: '0.75rem' }}>{saveError}</span>
+                      <span style={{ color: '#ef4444', fontSize: '0.65rem', width: '100%' }}>{saveError}</span>
                     )}
                   </span>
                 );
@@ -188,7 +199,7 @@ const UsersPage = () => {
                 <Button
                   size="small"
                   onClick={() => startEdit(record)}
-                  style={{ color: '#3b82f6', borderColor: '#93c5fd' }}
+                  style={{ color: '#3b82f6', borderColor: '#93c5fd', fontSize: '0.7rem' }}
                 >
                   Edit
                 </Button>
@@ -203,7 +214,7 @@ const UsersPage = () => {
     <ConfigProvider locale={enUS}>
       <CustomLayout>
         {loading && (
-          <div style={{ textAlign: 'center', padding: '4rem' }}>
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
             <Spin size="large" />
           </div>
         )}
@@ -216,10 +227,11 @@ const UsersPage = () => {
             columns={columns}
             rowKey="email"
             pagination={false}
-            size="middle"
+            size="small"
+            scroll={{ x: 500 }}
             style={{
               background: '#fff',
-              borderRadius: '0.75rem',
+              borderRadius: '0.5rem',
               boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
               overflow: 'hidden',
             }}
@@ -230,7 +242,7 @@ const UsersPage = () => {
             footer={
               users.length > 0
                 ? () => (
-                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                       {users.length} user{users.length !== 1 ? 's' : ''} total
                     </span>
                   )
@@ -253,4 +265,3 @@ export const Route = createFileRoute('/users')({
   },
   component: UsersPage,
 });
-
