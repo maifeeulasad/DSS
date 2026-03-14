@@ -341,9 +341,10 @@ def create_app() -> FastAPI:
 
         def _run() -> None:
             time.sleep(2)
+            root_email = f"{root_user}@dss.com"
             payload = json.dumps({
                 "name": root_user,
-                "email": f"{root_user}@dss.com",
+                "email": root_email,
                 "password": root_password,
                 "institute": "",
             }).encode()
@@ -358,11 +359,20 @@ def create_app() -> FastAPI:
                     _seed_logger.info("Root user '%s' created (status %d).", root_user, resp.status)
             except urllib.error.HTTPError as exc:
                 if exc.code == 409:
-                    _seed_logger.info("Root user '%s' already exists - skipping.", root_user)
+                    _seed_logger.info("Root user '%s' already exists - skipping registration.", root_user)
                 else:
                     _seed_logger.warning("Root user creation failed (HTTP %d): %s", exc.code, exc)
+                    return
             except Exception as exc:  # noqa: BLE001
                 _seed_logger.warning("Root user creation failed: %s", exc)
+                return
+
+            # Promote directly via MongoDB (no HTTP endpoint for this by design)
+            try:
+                update_user(root_email, name=None, institute=None, role="admin")
+                _seed_logger.info("Root user '%s' promoted to admin.", root_user)
+            except Exception as exc:  # noqa: BLE001
+                _seed_logger.warning("Failed to promote root user to admin: %s", exc)
 
         threading.Thread(target=_run, daemon=True, name="seed-root-user").start()
 
