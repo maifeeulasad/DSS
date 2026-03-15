@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
+import { Button } from 'antd';
 
 // Lazy-loaded so it only renders on the client (Canvas uses window/navigator APIs)
 const Canvas = React.lazy(() => import('react-webgl-fluid-play'));
@@ -21,7 +22,7 @@ export const Home = () => {
   return (
     <>
       {isClient && (
-        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#000' }} />}>
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#0f172a' }} />}>
           <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
             <Canvas initialAnimation={{ path: 'oval', options: { maxLoops: 5 } }} loadingFallback={null} />
           </div>
@@ -43,26 +44,39 @@ export const Home = () => {
         padding: '1rem',
       }}
     >
-      {/* Glassmorphism card - mobile responsive */}
+      {/* Card - mobile responsive */}
       <div
         style={{
-          background: 'rgba(0,0,0,0.45)',
-          backdropFilter: 'blur(22px)',
-          WebkitBackdropFilter: 'blur(22px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: '1.5rem',
+          background: '#ffffffc0',
+          borderRadius: '0.75rem',
           padding: '2rem 1.5rem',
           maxWidth: '680px',
           width: '100%',
           textAlign: 'center',
           pointerEvents: 'auto',
-          boxShadow: '0 12px 64px rgba(0,0,0,0.55)',
+          boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.15)',
         }}
       >
+        {/* Logo */}
+        <div style={{ marginBottom: '1rem' }}>
+          <svg width="64" height="64" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block' }}>
+            <circle cx="24" cy="24" r="22" fill="url(#logo-gradient-home)" />
+            <path d="M16 24C16 20 19 16 24 16C29 16 32 20 32 24" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M20 28C20 31 22.5 34 26 34C29.5 34 32 31 32 28" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="24" cy="24" r="3" fill="white"/>
+            <defs>
+              <linearGradient id="logo-gradient-home" x1="2" y1="2" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#3b82f6"/>
+                <stop offset="1" stopColor="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
         {/* Title - responsive font size */}
         <h1 style={{ 
-          color: '#fff', 
-          fontSize: 'clamp(2.5rem, 10vw, 4rem)', 
+          color: '#1e293b', 
+          fontSize: 'clamp(2.5rem, 10vw, 3rem)', 
           fontWeight: 900, 
           margin: '0 0 4px', 
           letterSpacing: '-0.03em', 
@@ -72,7 +86,7 @@ export const Home = () => {
         </h1>
         
         <p style={{ 
-          color: 'rgba(255,255,255,0.7)', 
+          color: '#64748b', 
           fontSize: 'clamp(0.7rem, 2.5vw, 0.9rem)', 
           margin: '0 0 1.25rem', 
           letterSpacing: '0.15em', 
@@ -83,7 +97,7 @@ export const Home = () => {
         </p>
         
         <p style={{ 
-          color: 'rgba(255,255,255,0.6)', 
+          color: '#64748b', 
           fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
           lineHeight: 1.65, 
           margin: '0 0 1.5rem',
@@ -107,11 +121,11 @@ export const Home = () => {
             <span 
               key={f.label} 
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                background: '#f1f5f9',
+                border: '1px solid #e2e8f0',
                 borderRadius: '2rem',
                 padding: '0.35rem 0.85rem',
-                color: 'rgba(255,255,255,0.88)',
+                color: '#475569',
                 fontSize: 'clamp(0.65rem, 2vw, 0.8rem)',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
@@ -130,60 +144,57 @@ export const Home = () => {
           flexWrap: 'wrap',
           flexDirection: 'row',
         }}>
-          <a 
-            href="/analysis" 
+          <Button
+            type="primary"
+            size="large"
             style={{
-              padding: '0.75rem 2rem',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              color: '#fff',
-              borderRadius: '3rem',
-              fontWeight: 700,
+              height: '2.5rem',
+              padding: '0 2rem',
+              fontWeight: 600,
               fontSize: 'clamp(0.85rem, 3vw, 1rem)',
-              textDecoration: 'none',
-              boxShadow: '0 4px 24px rgba(79,195,247,0.35)',
-              display: 'inline-block',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              border: 'none',
+              borderRadius: '0.375rem',
+              boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-              e.currentTarget.style.boxShadow = '0 6px 28px rgba(79,195,247,0.45)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 4px 24px rgba(79,195,247,0.35)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(59, 130, 246, 0.35)';
             }}
           >
             Start Analysis
-          </a>
-          <a 
-            href="/login" 
+          </Button>
+          <Button
+            size="large"
             style={{
-              padding: '0.75rem 2rem',
-              background: 'rgba(255,255,255,0.1)',
-              color: '#fff',
-              borderRadius: '3rem',
+              height: '2.5rem',
+              padding: '0 2rem',
               fontWeight: 600,
               fontSize: 'clamp(0.85rem, 3vw, 1rem)',
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.2)',
-              display: 'inline-block',
-              transition: 'background 0.2s ease',
+              background: '#f8fafc',
+              color: '#1e293b',
+              border: '1px solid #e2e8f0',
+              borderRadius: '0.375rem',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+              e.currentTarget.style.background = '#f1f5f9';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+              e.currentTarget.style.background = '#f8fafc';
             }}
           >
             Login
-          </a>
+          </Button>
         </div>
       </div>
 
       {/* Mobile-friendly bottom hint */}
       <p style={{ 
-        color: 'rgba(255,255,255,0.28)', 
+        color: '#94a3b8', 
         fontSize: '0.7rem', 
         marginTop: '1.5rem', 
         pointerEvents: 'none', 
